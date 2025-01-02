@@ -3,6 +3,8 @@ package pedroPathing.tuners_tests.pid;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.pedropathing.util.Constants;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -35,12 +37,14 @@ public class StraightBackAndForth extends OpMode {
 
     public static double DISTANCE = 40;
 
-    private boolean forward = true;
+    private boolean forward = true, firstTime = false;
+    double looptime = 0.0;
 
     private Follower follower;
 
     private Path forwards;
     private Path backwards;
+    Timer timer;
 
     /**
      * This initializes the Follower and creates the forward and backward Paths. Additionally, this
@@ -48,7 +52,8 @@ public class StraightBackAndForth extends OpMode {
      */
     @Override
     public void init() {
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap);
 
         forwards = new Path(new BezierLine(new Point(0,0, Point.CARTESIAN), new Point(DISTANCE,0, Point.CARTESIAN)));
         forwards.setConstantHeadingInterpolation(0);
@@ -70,6 +75,14 @@ public class StraightBackAndForth extends OpMode {
      */
     @Override
     public void loop() {
+        if (!firstTime) {
+            timer = new Timer();
+            firstTime = true;
+        }
+        else {
+            looptime = timer.getElapsedTime();
+            firstTime = false;
+        }
         follower.update();
         if (!follower.isBusy()) {
             if (forward) {
@@ -82,6 +95,7 @@ public class StraightBackAndForth extends OpMode {
         }
 
         telemetryA.addData("going forward", forward);
+        telemetryA.addData("loop time ", looptime);
         follower.telemetryDebug(telemetryA);
     }
 }

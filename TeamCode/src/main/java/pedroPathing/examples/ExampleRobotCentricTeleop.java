@@ -2,6 +2,7 @@ package pedroPathing.examples;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
+import com.pedropathing.util.Constants;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -23,8 +24,8 @@ public class ExampleRobotCentricTeleop extends OpMode {
     /** This method is call once when init is played, it initializes the follower **/
     @Override
     public void init() {
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
-        follower.setStartingPose(startPose);
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap);        follower.setStartingPose(startPose);
     }
 
     /** This method is called continuously after Init while waiting to be started. **/
