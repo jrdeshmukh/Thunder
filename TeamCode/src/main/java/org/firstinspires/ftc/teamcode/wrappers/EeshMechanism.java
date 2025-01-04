@@ -51,7 +51,7 @@ public class EeshMechanism {
     }
 
     public double getWristAngle() {
-        return (wristL.getPosition() - WRIST_FLAT) * DEGREE_TO_POS;
+        return (lastWristPos - WRIST_FLAT) * DEGREE_TO_POS;
     }
 
     public double calcWristAngle(double targetAngleDegrees) {
