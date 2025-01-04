@@ -27,8 +27,7 @@ public class CalibrationTele extends OpMode {
     @Override
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);        worm = new Worm(hardwareMap);
-        slide = new Slide(hardwareMap, worm);
+        follower = new Follower(hardwareMap);
         mechanism = new EeshMechanism(hardwareMap);
 
         gp1 = new BBG(gamepad1);
@@ -54,8 +53,8 @@ public class CalibrationTele extends OpMode {
 
 
 
-        slide.setPower(-gamepad2.right_stick_y);
-        worm.setPower(-gamepad2.left_stick_y);
+        mechanism.slide.setPower(-gamepad2.right_stick_y);
+        mechanism.worm.setPower(-gamepad2.left_stick_y);
 
 
 

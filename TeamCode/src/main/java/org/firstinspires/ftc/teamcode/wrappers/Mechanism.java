@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.wrappers;
+/*package org.firstinspires.ftc.teamcode.wrappers;
 
 import androidx.annotation.NonNull;
 
@@ -30,7 +30,7 @@ public class Mechanism {
          claw = hardwareMap.servo.get("claw");
          spin = hardwareMap.servo.get("spin");
          spin.setPosition(SPIN_0);
-         worm = new Worm(hardwareMap);
+         worm = new Worm(hardwareMap, this);
          slide = new Slide(hardwareMap, worm);
     }
 
@@ -121,4 +121,4 @@ public class Mechanism {
 
 
 
-}
+}*/

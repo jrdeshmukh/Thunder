@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.wrappers.EeshMechanism;
 
 @Config
 @TeleOp(name = "PIDF_ARM_LOOP", group = "drive")
@@ -20,23 +21,17 @@ public class PIDF_Tuning extends OpMode {
     public PIDController controller, slidecontroller;
     public static double p=0.0075,i=0,d=0.00003;
     public static double sp = 0.02, si=0, sd=0.0003, sf = 0.00005;
-    public DcMotorEx worm, copycat, slide;
 
     public static double ticksPerRotation = 29.444444;
     public static double angleOffset = 54.714;
+    EeshMechanism mechanism;
 
     public static int target = 0;
     public static int starget = 0;
     TouchSensor dontBreakIntake, dontBreakMotor;
 
     public void init() {
-        worm = hardwareMap.get(DcMotorEx.class, "worm");
-        copycat = hardwareMap.get(DcMotorEx.class, "copycat");
-        worm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        copycat.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        slide = hardwareMap.get(DcMotorEx.class, "slide");
-        slide.setDirection(DcMotorSimple.Direction.REVERSE);
+        mechanism = new EeshMechanism(hardwareMap);
 
 
         dontBreakIntake = hardwareMap.touchSensor.get("dontBreakIntake");
@@ -50,27 +45,28 @@ public class PIDF_Tuning extends OpMode {
     }
     public void loop() {
         controller.setPID(p,i,d);
-        int pos = worm.getCurrentPosition();
+        mechanism.update();
+        int pos = -mechanism.wormCurrent, copycatPos = -mechanism.copycatCurrent;
         double wormPow = controller.calculate(pos, target);
         boolean dontBreakIntakeLim = dontBreakIntake.isPressed() && wormPow < 0;
         boolean dontBreakMotorLim = dontBreakMotor.isPressed() && wormPow > 0;
-        double copycatPow = controller.calculate(copycat.getCurrentPosition(), target);
+        double copycatPow = controller.calculate(copycatPos, target);
 
-        worm.setPower(wormPow);
-        copycat.setPower(copycatPow);
+        mechanism.worm.worm.setPower(wormPow);
+        mechanism.worm.copycat.setPower(copycatPow);
 
 
         slidecontroller.setPID(sp, si, sd);
-        int spos = slide.getCurrentPosition();
-        double spow = slidecontroller.calculate(spos, starget);
-        double ff = (spos+1865) * sf * Math.sin(pos/29.444 + 54.714);
-        slide.setPower(spow+ff);
+        int spos = mechanism.slideCurrent;
+        double spow = slidecontroller.calculate(mechanism.slideCurrent, starget);
+        double ff = (spos+1865) * sf * Math.sin(mechanism.worm.getAngle());
+        mechanism.slide.setPower(spow+ff);
         telemetry.addData("power: ", wormPow);
         telemetry.addData("copycat power: ", copycatPow);
-        telemetry.addData("worm current: ", worm.getCurrent(CurrentUnit.MILLIAMPS));
-        telemetry.addData("copyact current: ", copycat.getCurrent(CurrentUnit.MILLIAMPS));
+        //telemetry.addData("worm current: ", worm.getCurrent(CurrentUnit.MILLIAMPS));
+        //telemetry.addData("copyact current: ", copycat.getCurrent(CurrentUnit.MILLIAMPS));
         telemetry.addData("pos: ", pos);
-        telemetry.addData("copycat pos: ", copycat.getCurrentPosition());
+        telemetry.addData("copycat pos: ", copycatPos);
         telemetry.addData("target: ", target);
         telemetry.addData("sff: ", ff);
         telemetry.addData("spow: ", spow+ff);
@@ -78,7 +74,7 @@ public class PIDF_Tuning extends OpMode {
         telemetry.addData("starget: ", starget);
         telemetry.addData("angle: ", pos/ticksPerRotation + angleOffset);
         telemetry.addData("error: ", target-pos);
-        telemetry.addData("copycat error: ", target-copycat.getCurrentPosition());
+        telemetry.addData("copycat error: ", target- copycatPos);
         telemetry.update();
     }
 }

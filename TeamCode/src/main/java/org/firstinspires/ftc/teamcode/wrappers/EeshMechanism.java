@@ -7,6 +7,8 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -38,7 +40,8 @@ public class EeshMechanism {
     public double wormPickup = -800;
     public boolean pickup = false, matchSlide = false;
     public static double wristCurrent = 0.5, CHOSEN_ANGLE = WRIST_UP, lastWristPos = 0.4;
-    public static int wormCurrent = 0, slideCurrent = 0, copycatCurrent = 0;
+    public int wormCurrent = 0, slideCurrent = 0, copycatCurrent = 0;
+    DcMotor frontLeft, frontRight, backRight;
     public Worm worm;
     public Slide slide;
 
@@ -46,8 +49,13 @@ public class EeshMechanism {
         wristL = hardwareMap.servo.get("wristL");
         wristR = hardwareMap.servo.get("wristR");
         intake = hardwareMap.crservo.get("intake");
-        worm = new Worm(hardwareMap);
-        slide = new Slide(hardwareMap, worm);
+        frontLeft = hardwareMap.dcMotor.get("leftFront");
+        frontRight = hardwareMap.dcMotor.get("leftRear");
+        backRight = hardwareMap.dcMotor.get("rightRear");
+        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        worm = new Worm(hardwareMap, this);
+        slide = new Slide(hardwareMap, worm, this);
     }
 
     public double getWristAngle() {
@@ -66,6 +74,9 @@ public class EeshMechanism {
     public void setIntake(double power) {
         intake.setPower(power);
     }
+    public Action startIntake() {return new InstantAction(() -> intake.setPower(1));}
+    public Action drop() {return new InstantAction(() -> intake.setPower(-1));}
+
     public class UpdateAction implements Action {
 
         @Override
@@ -80,10 +91,10 @@ public class EeshMechanism {
     }
 
     public void update() {
-        wormCurrent = worm.worm.getCurrentPosition();
-        copycatCurrent = worm.copycat.getCurrentPosition();
-        slideCurrent = slide.slide.getCurrentPosition();
-        wormPickup = worm.calcNeededPos(Math.toDegrees(Math.asin(785.52/(2000+EeshMechanism.slideCurrent))));
+        copycatCurrent = -backRight.getCurrentPosition();
+        wormCurrent = frontRight.getCurrentPosition();
+        slideCurrent = -frontLeft.getCurrentPosition();
+        wormPickup = worm.calcNeededPos(Math.toDegrees(Math.asin(785.52/(2000+this.slideCurrent))));
         wristCurrent = (CHOSEN_ANGLE-worm.getAngle())/DEGREE_TO_POS + WRIST_FLAT;
         if(matchSlide) {
             setWrist(0.1);
@@ -105,7 +116,7 @@ public class EeshMechanism {
 
 
     public Action wristPickup() {
-        return new InstantAction(() -> setWrist(Mechanism.WRIST_DOWN));
+        return new InstantAction(() -> setWrist(WRIST_DOWN));
     }
 
     public void setWrist(double posL) {

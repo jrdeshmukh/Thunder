@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.wrappers;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
@@ -11,11 +12,12 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
+@Config
 public class Worm {
-    public DcMotorEx worm, copycat;
+    public DcMotor worm, copycat;
     public static boolean overrideLimit = false;
     private final PIDController controller;
-    public final double p = 0.0075, i = 0, d = 0.00003;
+    public static double p = 0.0075, i = 0, d = 0.00003;
     public static int offset = 0;
 
     public static final int BOTTOM = 0;
@@ -24,27 +26,29 @@ public class Worm {
     public static final int HIGH_RUNG = 0;
     public boolean active = false;
     public static double curPow = 0;
+    public double wormPow=0, copycatPow=0;
     public double targetPosition;
     public boolean humanControl = true;
     public static double TICKS_PER_DEGREE = 29.44444;
     public boolean pickup = false;
     public double lastPower = 15, tol = 0.01;
-
+    EeshMechanism mechanism;
 
 
     public TouchSensor dontBreakIntake;
     public TouchSensor dontBreakMotor;
-    public Worm(HardwareMap map) {
+    public Worm(HardwareMap map, EeshMechanism mechanism) {
         worm = map.get(DcMotorEx.class, "worm");
         copycat = map.get(DcMotorEx.class, "copycat");
 
         worm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         copycat.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        targetPosition = EeshMechanism.wormCurrent;
+        targetPosition = mechanism.wormCurrent;
 
         controller = new PIDController(p, i, d);
         controller.setPID(p, i, d);
+        this.mechanism = mechanism;
 
         dontBreakIntake = map.touchSensor.get("dontBreakIntake");
         dontBreakMotor =  map.touchSensor.get("dontBreakMotor");
@@ -57,49 +61,34 @@ public class Worm {
     }
 
     public double getAngle() {
-        return EeshMechanism.wormCurrent/TICKS_PER_DEGREE + 54.714;
+        return mechanism.wormCurrent/TICKS_PER_DEGREE + 54.714;
     }
 
     public double calcNeededPos(double angle) {
-        return angle*TICKS_PER_DEGREE;
+        return (angle-54.714)*TICKS_PER_DEGREE;
     }
 
     public void setPow2() {
         if(humanControl) {
-            if(Math.abs(lastPower)>tol) {
+            //if(Math.abs(lastPower)>tol) {
                 worm.setPower(0);
                 copycat.setPower(0);
-            }
+            //}
             lastPower = 0;
             return;
         }
-        int pos = EeshMechanism.wormCurrent;
-        curPow = controller.calculate(pos, targetPosition);
+        int pos = mechanism.wormCurrent;
+        wormPow = controller.calculate(pos, targetPosition);
+        copycatPow = controller.calculate(mechanism.copycatCurrent, targetPosition);
 
-        double copycatPow = controller.calculate(EeshMechanism.copycatCurrent, targetPosition);
+        //boolean dontBreakIntakeLim = dontBreakIntake.isPressed() && curPow < 0;
+        //boolean dontBreakMotorLim = dontBreakMotor.isPressed() && curPow > 0;
 
-        boolean dontBreakIntakeLim = dontBreakIntake.isPressed() && curPow < 0;
-        boolean dontBreakMotorLim = dontBreakMotor.isPressed() && curPow > 0;
-
-        if(!dontBreakIntakeLim && !dontBreakMotorLim) {
-            worm.setPower(curPow);
+        //if(!dontBreakIntakeLim && !dontBreakMotorLim) {
+            worm.setPower(wormPow);
             copycat.setPower(copycatPow);
-            lastPower = curPow;
-        }
-    }
-
-    public void setPow3() {
-        int pos = EeshMechanism.wormCurrent;
-        curPow = controller.calculate(pos, targetPosition);
-
-        boolean dontBreakIntakeLim = dontBreakIntake.isPressed() && curPow < 0;
-        boolean dontBreakMotorLim = dontBreakMotor.isPressed() && curPow > 0;
-
-        if(Math.abs(lastPower-curPow)>tol) {
-            worm.setPower(curPow);
-            copycat.setPower(curPow);
-        }
-        lastPower = curPow;
+            lastPower = wormPow;
+        //}
     }
 
     public class ResetEncoder implements Action {
@@ -122,7 +111,7 @@ public class Worm {
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            return Math.abs(EeshMechanism.wormCurrent-targetPosition)>20;
+            return Math.abs(mechanism.wormCurrent-targetPosition)>20;
         }
     }
 
@@ -144,7 +133,7 @@ public class Worm {
     public class SetPow implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            int pos = EeshMechanism.wormCurrent;
+            int pos = mechanism.wormCurrent;
             double pid = controller.calculate(pos, targetPosition);
 
             boolean dontBreakIntakeLim = dontBreakIntake.isPressed() && pid < 0;
@@ -195,7 +184,7 @@ public class Worm {
             worm.setPower(0);
             copycat.setPower(0);
         }
-        else if(EeshMechanism.wormCurrent <= EeshMechanism.WORMPICKUPPOS && power < 0)
+        else if(mechanism.wormCurrent <= EeshMechanism.WORMPICKUPPOS && power < 0)
         {
             worm.setPower(0);
             copycat.setPower(0);
@@ -205,7 +194,7 @@ public class Worm {
             worm.setPower(0);
             copycat.setPower(0);
         }
-        else if(EeshMechanism.wormCurrent >= EeshMechanism.WORMMAX && power > 0)
+        else if(mechanism.wormCurrent >= EeshMechanism.WORMMAX && power > 0)
         {
             worm.setPower(0);
             copycat.setPower(0);

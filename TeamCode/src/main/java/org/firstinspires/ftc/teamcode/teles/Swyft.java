@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teles;
+/*package org.firstinspires.ftc.teamcode.teles;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -26,8 +26,6 @@ public class Swyft extends OpMode {
         slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slide.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        worm = new Worm(hardwareMap);
 
 
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -72,4 +70,4 @@ public class Swyft extends OpMode {
 
         telemetry.update();
     }
-}
+}*/

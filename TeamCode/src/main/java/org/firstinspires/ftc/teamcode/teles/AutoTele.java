@@ -180,35 +180,40 @@ public class AutoTele extends OpMode {
         }
 
 
-        if(Math.abs(gamepad2.right_stick_y)>0.05) {
+        if(Math.abs(gamepad2.right_stick_y)>0) {
             mechanism.slide.setPower(-gamepad2.right_stick_y);
+            autoSlide = false;
         }
         else {
+            autoSlide = true;
             mechanism.slide.setPow2();
         }
 
-        if(EeshMechanism.wormCurrent <= 1450 && EeshMechanism.wormCurrent >= 0)
+        if(mechanism.wormCurrent <= 1450 && mechanism.wormCurrent >= 0)
         {
             //mechanism.setWrist(EeshMechanism.WRISTHOVER);
         }
 
 
         if(Math.abs(gamepad2.left_stick_y)>0.25) {
-            if(Math.abs(-gamepad2.left_stick_y) > 0.5 && EeshMechanism.wormCurrent > -500)
+            telemetry.addData("Joystick State", 1);
+
+            if(Math.abs(-gamepad2.left_stick_y) > 0.5 && mechanism.wormCurrent > -500)
             {
                 mechanism.setWorm(-gamepad2.left_stick_y);
             }
-            else if(EeshMechanism.wormCurrent <= -300 && -gamepad2.left_stick_y < 0)
+            else if(mechanism.wormCurrent <= -300 && -gamepad2.left_stick_y < 0)
             {
                 mechanism.setWorm(-1);
             }
-            else if(EeshMechanism.wormCurrent <= -300 && -gamepad2.left_stick_y > 0)
+            else if(mechanism.wormCurrent <= -300 && -gamepad2.left_stick_y > 0)
             {
                 mechanism.setWorm(-gamepad2.left_stick_y);
             }
             telemetry.addData("worm power mod", -gamepad2.left_stick_y);
         }
         else {
+            telemetry.addData("Set Pow 2 State", 1);
             mechanism.worm.setPow2();
         }
 
@@ -235,38 +240,40 @@ public class AutoTele extends OpMode {
             mechanism.setWrist(0.8522);
         }
 
-        if(EeshMechanism.wormCurrent < 0 && !flippedSafety1)
+        if(mechanism.wormCurrent < 0 && !flippedSafety1)
         {
             //mechanism.setWrist(EeshMechanism.WRISTHOVER);
             flippedSafety1 = true;
         }
 
-        if(EeshMechanism.wormCurrent > 0 && flippedSafety1)
+        if(mechanism.wormCurrent > 0 && flippedSafety1)
         {
             flippedSafety1 = false;
         }
 
-        if(EeshMechanism.wormCurrent < -900 /*&& !flippedSafety2*/)
+        if(mechanism.wormCurrent < -900 /*&& !flippedSafety2*/)
         {
             mechanism.setWrist(0.32);
             flippedSafety2 = true;
         }
 
-        if(EeshMechanism.wormCurrent > -900 && flippedSafety2)
+        if(mechanism.wormCurrent > -900 && flippedSafety2)
         {
             flippedSafety2 = false;
         }
 
 
-        telemetry.addData("worm pos", EeshMechanism.wormCurrent);
-        telemetry.addData("copycat pos", EeshMechanism.copycatCurrent);
-        telemetry.addData("worm target pos", EeshMechanism.wormCurrent);
+        telemetry.addData("worm pos", mechanism.wormCurrent);
+        telemetry.addData("copycat pos", mechanism.copycatCurrent);
+        telemetry.addData("worm target pos", mechanism.wormCurrent);
         telemetry.addData("worm override limit?", Worm.overrideLimit);
-        telemetry.addData("slide pos", EeshMechanism.slideCurrent);
+        telemetry.addData("slide pos", mechanism.slideCurrent);
         telemetry.addData("wrist pos", mechanism.getWristPos());
         telemetry.addData("wirst angle: ", mechanism.getWristAngle());
         telemetry.addData("speedMod", speedMod);
         telemetry.addData("slide power: ", mechanism.slide.lastPower);
+        telemetry.addData("worm pickup pos: ", mechanism.wormPickup);
+        telemetry.addData("auto slide: ", autoSlide);
         //telemetry.addData("worm current: ",  mechanism.worm.worm.getCurrent(CurrentUnit.MILLIAMPS));
         //telemetry.addData("copyact current: ", mechanism.worm.copycat.getCurrent(CurrentUnit.MILLIAMPS));
         telemetry.addData("isbudy", follower.isBusy());

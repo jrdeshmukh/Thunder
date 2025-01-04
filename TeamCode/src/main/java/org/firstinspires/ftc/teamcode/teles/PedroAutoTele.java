@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teles;
+/*package org.firstinspires.ftc.teamcode.teles;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -258,3 +258,4 @@ public class PedroAutoTele extends OpMode {
         //follower.telemetryDebug(telemetryA);
     }
 }
+*/

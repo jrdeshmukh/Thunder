@@ -29,19 +29,22 @@ public class Slide {
     public static final int MAX_UP_POS = 3200; //highest it can physically go
     public static int fullExtension = 1722;
     public double lastPower = 15, tol = 0.01;
+    public boolean changing = false;
     Worm worm;
 
 
     public double targetPosition = 0;
     public boolean humanControl = true;
+    EeshMechanism mechanism;
 
-    public Slide(HardwareMap map, Worm worm) {
+    public Slide(HardwareMap map, Worm worm, EeshMechanism mechanism) {
         slide = map.get(DcMotorEx.class, "slide");
         slide.setDirection(DcMotorSimple.Direction.REVERSE);
         this.worm = worm;
 
         controller = new PIDController(p, i, d);
         controller.setPID(p, i, d);
+        this.mechanism = mechanism;
     }
 
     public void runToPos(int targetPosition) {
@@ -59,11 +62,14 @@ public class Slide {
     }
 
     public void setPow2() {
-        int pos = EeshMechanism.slideCurrent;
+        int pos = mechanism.slideCurrent;
         double ff = (pos+1865) * f * Math.sin(Math.toRadians(worm.getAngle()));
         if(humanControl) {
-            slide.setPower(ff);
-            lastPower = ff;
+            changing = true;
+            if((lastPower-ff)>tol) {
+                slide.setPower(ff);
+                lastPower = ff;
+            }
             return;
         }
         double pid = controller.calculate(pos, Math.min(getFullExtension(), targetPosition));
@@ -94,7 +100,7 @@ public class Slide {
     public class SetPow implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            int pos = EeshMechanism.slideCurrent;
+            int pos = mechanism.slideCurrent;
             double pid = controller.calculate(pos, targetPosition);
             double ff = pos * f;
             curPow = pid + ff;
@@ -133,7 +139,7 @@ public class Slide {
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            return Math.abs(EeshMechanism.slideCurrent-targetPosition)>50;
+            return Math.abs(mechanism.slideCurrent-targetPosition)>50;
         }
     }
 
@@ -181,7 +187,7 @@ public class Slide {
 
     public void setPower(double power) {
         humanControl = true;
-        if(EeshMechanism.slideCurrent < getFullExtension() || power < 0) {
+        if(mechanism.slideCurrent < getFullExtension() || power < 0) {
             if(Math.abs(lastPower-power)>tol) {
                 slide.setPower(power);
             }
@@ -189,10 +195,10 @@ public class Slide {
 
         }
         else{
-            if(Math.abs(lastPower-p*(fullExtension-EeshMechanism.slideCurrent))>tol) {
-                slide.setPower(p*(fullExtension-EeshMechanism.slideCurrent));
+            if(Math.abs(lastPower-p*(fullExtension-mechanism.slideCurrent))>tol) {
+                slide.setPower(p*(fullExtension-mechanism.slideCurrent));
             }
-            lastPower = p*(fullExtension-EeshMechanism.slideCurrent);
+            lastPower = p*(fullExtension-mechanism.slideCurrent);
         }
     }
 

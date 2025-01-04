@@ -174,14 +174,12 @@ public class PleaseDontBreakTheRobotTele extends OpMode {
         if(gamepad2.dpad_down)
         {
             mechanism.worm.worm.setTargetPosition(-1115);
-            mechanism.worm.setPow3();
             mechanism.setWrist(EeshMechanism.WRISTHOVER);
         }
 
         if(gamepad2.dpad_up)
         {
             mechanism.worm.worm.setTargetPosition(1546);
-            mechanism.worm.setPow3();
             mechanism.setWrist(0.8522);
         }
 

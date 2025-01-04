@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.util.Constants;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -42,6 +43,7 @@ public class StraightBackAndForth extends OpMode {
 
     private Path forwards;
     private Path backwards;
+    Timer timer;
 
     /**
      * This initializes the Follower and creates the forward and backward Paths. Additionally, this
@@ -58,6 +60,7 @@ public class StraightBackAndForth extends OpMode {
         backwards.setConstantHeadingInterpolation(0);
 
         follower.followPath(forwards);
+        timer = new Timer();
 
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetryA.addLine("This will run the robot in a straight line going " + DISTANCE
@@ -72,6 +75,8 @@ public class StraightBackAndForth extends OpMode {
      */
     @Override
     public void loop() {
+        telemetryA.addData("looptime: ", timer.getElapsedTime());
+        timer = new Timer();
         follower.update();
         if (!follower.isBusy()) {
             if (forward) {
