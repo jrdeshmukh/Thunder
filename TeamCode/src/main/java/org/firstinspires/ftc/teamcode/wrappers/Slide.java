@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class Slide {
     public DcMotorEx slide;
     private final PIDController controller;
-    public static double p = 0.008, i = 0, d = 0.00005, f = 0.00005;
+    public static double p = 0.02, i = 0, d = 0.0003, f = 0.00005;
 
     public static final int BOTTOM = 0;
     public static final int HIGH_BASKET = 3150;
@@ -33,7 +33,7 @@ public class Slide {
 
 
     public double targetPosition = 0;
-    public boolean humanControl = false;
+    public boolean humanControl = true;
 
     public Slide(HardwareMap map, Worm worm) {
         slide = map.get(DcMotorEx.class, "slide");
@@ -60,12 +60,10 @@ public class Slide {
 
     public void setPow2() {
         int pos = EeshMechanism.slideCurrent;
-        double ff = pos * f;
+        double ff = (pos+1865) * f * Math.sin(Math.toRadians(worm.getAngle()));
         if(humanControl) {
-            if(Math.abs(lastPower-curPow)>tol) {
-                slide.setPower(curPow);
-            }
-            lastPower = curPow;
+            slide.setPower(ff);
+            lastPower = ff;
             return;
         }
         double pid = controller.calculate(pos, Math.min(getFullExtension(), targetPosition));
@@ -73,6 +71,7 @@ public class Slide {
         if(Math.abs(lastPower-curPow)>tol) {
             slide.setPower(curPow);
         }
+        lastPower = curPow;
     }
 
     public class ResetEncoder implements Action {
@@ -102,6 +101,7 @@ public class Slide {
             if(Math.abs(lastPower-curPow)>tol) {
                 slide.setPower(curPow);
             }
+            lastPower = curPow;
             return true;
         }
     }
@@ -182,10 +182,17 @@ public class Slide {
     public void setPower(double power) {
         humanControl = true;
         if(EeshMechanism.slideCurrent < getFullExtension() || power < 0) {
-            slide.setPower(power);
+            if(Math.abs(lastPower-power)>tol) {
+                slide.setPower(power);
+            }
+            lastPower = power;
+
         }
         else{
-            slide.setPower(p*(fullExtension-EeshMechanism.slideCurrent));
+            if(Math.abs(lastPower-p*(fullExtension-EeshMechanism.slideCurrent))>tol) {
+                slide.setPower(p*(fullExtension-EeshMechanism.slideCurrent));
+            }
+            lastPower = p*(fullExtension-EeshMechanism.slideCurrent);
         }
     }
 
