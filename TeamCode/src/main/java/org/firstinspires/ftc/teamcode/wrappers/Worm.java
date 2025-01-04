@@ -15,7 +15,7 @@ public class Worm {
     public DcMotorEx worm, copycat;
     public static boolean overrideLimit = false;
     private final PIDController controller;
-    public final double p = 0.025, i = 0, d = 0.000;
+    public final double p = 0.0075, i = 0, d = 0.00003;
     public static int offset = 0;
 
     public static final int BOTTOM = 0;
@@ -25,7 +25,7 @@ public class Worm {
     public boolean active = false;
     public static double curPow = 0;
     public double targetPosition;
-    public boolean humanControl = false;
+    public boolean humanControl = true;
     public static double TICKS_PER_DEGREE = 29.44444;
     public boolean pickup = false;
     public double lastPower = 15, tol = 0.01;
@@ -53,10 +53,11 @@ public class Worm {
     public void runToPos(int targetPosition) {
         humanControl = false;
         this.targetPosition = targetPosition;
+        if(this.targetPosition > 1500) this.targetPosition = 1500;
     }
 
     public double getAngle() {
-        return EeshMechanism.wormCurrent/TICKS_PER_DEGREE + 45;
+        return EeshMechanism.wormCurrent/TICKS_PER_DEGREE + 54.714;
     }
 
     public double calcNeededPos(double angle) {
@@ -75,14 +76,14 @@ public class Worm {
         int pos = EeshMechanism.wormCurrent;
         curPow = controller.calculate(pos, targetPosition);
 
+        double copycatPow = controller.calculate(EeshMechanism.copycatCurrent, targetPosition);
+
         boolean dontBreakIntakeLim = dontBreakIntake.isPressed() && curPow < 0;
         boolean dontBreakMotorLim = dontBreakMotor.isPressed() && curPow > 0;
 
         if(!dontBreakIntakeLim && !dontBreakMotorLim) {
-            if(Math.abs(lastPower-curPow)>tol) {
-                worm.setPower(curPow);
-                copycat.setPower(curPow);
-            }
+            worm.setPower(curPow);
+            copycat.setPower(copycatPow);
             lastPower = curPow;
         }
     }
@@ -210,9 +211,14 @@ public class Worm {
             copycat.setPower(0);
         }
         else {
-            worm.setPower(power);
-            copycat.setPower(power);
+            if(Math.abs(lastPower-power)>tol) {
+                worm.setPower(power);
+                copycat.setPower(power);
+            }
+            lastPower = power;
         }
+
+
 
     }
 

@@ -36,6 +36,8 @@ public class ResetWorm extends OpMode {
         {
             pow = 0;
             mechanism.worm.worm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            mechanism.worm.copycat.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            requestOpModeStop();
         }
 
         telemetry.addData("limit switch pressed", limitSwitch.isPressed());
