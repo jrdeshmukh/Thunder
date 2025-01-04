@@ -217,6 +217,7 @@ public class AutoTele extends OpMode {
         if(Math.abs(gamepad2.right_trigger) > 0.1)      mechanism.setWrist(mechanism.getWristPos() + inc);
         if(Math.abs(gamepad2.left_trigger) > 0.1)       mechanism.setWrist(mechanism.getWristPos() - inc);
         if(gp2.right_bumper())                          mechanism.intake.setPower(1);
+        if(gamepad2.x)                                  mechanism.worm.runToPos((int) mechanism.wormPickup);
 
         if(gp2.left_bumper())
         {
@@ -275,7 +276,7 @@ public class AutoTele extends OpMode {
         telemetry.addData("Red: ", red);
         telemetry.addData("Blue: ", blue);
         telemetry.addData("Green: ", green);
-        telemetry.addData("Distance: ", colorRangeSensor.getDistance(DistanceUnit.INCH));
+        //telemetry.addData("Distance: ", colorRangeSensor.getDistance(DistanceUnit.INCH));
         //telemetry.addData("Dont Break Intake Pressed?", mechanism.worm.dontBreakIntake.isPressed());
         //telemetry.addData("Dont Break Motor Pressed?", mechanism.worm.dontBreakMotor.isPressed());
 
