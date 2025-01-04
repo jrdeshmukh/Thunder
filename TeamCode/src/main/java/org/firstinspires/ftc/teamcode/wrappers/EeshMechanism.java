@@ -35,7 +35,7 @@ public class EeshMechanism {
     public static double WRIST_UP = 90, WRIST_OUT = 0, WRIST_DOWN = -90, WRIST_SCORE = 180, MATCH_SLIDE = 270;
     public static double SLIDE_TICKS_HEIGHT = 460;
     public static double WORM_START = 1462;
-    public double wormPickup = 500;
+    public double wormPickup = -800;
     public boolean pickup = false, matchSlide = false;
     public static double wristCurrent = 0.5, CHOSEN_ANGLE = WRIST_UP, lastWristPos = 0.4;
     public static int wormCurrent = 0, slideCurrent = 0, copycatCurrent = 0;
@@ -83,7 +83,7 @@ public class EeshMechanism {
         wormCurrent = worm.worm.getCurrentPosition();
         copycatCurrent = worm.copycat.getCurrentPosition();
         slideCurrent = slide.slide.getCurrentPosition();
-        wormPickup = worm.calcNeededPos(Math.toDegrees(Math.asin(662.619/(1865+EeshMechanism.slideCurrent))));
+        wormPickup = worm.calcNeededPos(Math.toDegrees(Math.asin(785.52/(2000+EeshMechanism.slideCurrent))));
         wristCurrent = (CHOSEN_ANGLE-worm.getAngle())/DEGREE_TO_POS + WRIST_FLAT;
         if(matchSlide) {
             setWrist(0.1);

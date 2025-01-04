@@ -59,7 +59,7 @@ public class StraightBackAndForth extends OpMode {
         forwards.setConstantHeadingInterpolation(0);
         backwards = new Path(new BezierLine(new Point(DISTANCE,0, Point.CARTESIAN), new Point(0,0, Point.CARTESIAN)));
         backwards.setConstantHeadingInterpolation(0);
-
+        timer = new Timer();
         follower.followPath(forwards);
 
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -75,14 +75,8 @@ public class StraightBackAndForth extends OpMode {
      */
     @Override
     public void loop() {
-        if (!firstTime) {
-            timer = new Timer();
-            firstTime = true;
-        }
-        else {
-            looptime = timer.getElapsedTime();
-            firstTime = false;
-        }
+        looptime = timer.getElapsedTime();
+        timer = new Timer();
         follower.update();
         if (!follower.isBusy()) {
             if (forward) {
