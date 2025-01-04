@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 public class Worm {
     public DcMotor worm, copycat;
     public static boolean overrideLimit = false;
-    private final PIDController controller;
+    private final PIDController controller, ccontroller;
     public static double p = 0.0075, i = 0, d = 0.00003;
     public static int offset = 0;
 
@@ -48,6 +48,7 @@ public class Worm {
 
         controller = new PIDController(p, i, d);
         controller.setPID(p, i, d);
+        ccontroller = new PIDController(p, i, d);
         this.mechanism = mechanism;
 
         dontBreakIntake = map.touchSensor.get("dontBreakIntake");
@@ -79,7 +80,7 @@ public class Worm {
         }
         int pos = mechanism.wormCurrent;
         wormPow = controller.calculate(pos, targetPosition);
-        copycatPow = controller.calculate(mechanism.copycatCurrent, targetPosition);
+        copycatPow = ccontroller.calculate(mechanism.copycatCurrent, targetPosition);
 
         //boolean dontBreakIntakeLim = dontBreakIntake.isPressed() && curPow < 0;
         //boolean dontBreakMotorLim = dontBreakMotor.isPressed() && curPow > 0;
@@ -133,21 +134,7 @@ public class Worm {
     public class SetPow implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            int pos = mechanism.wormCurrent;
-            double pid = controller.calculate(pos, targetPosition);
-
-            boolean dontBreakIntakeLim = dontBreakIntake.isPressed() && pid < 0;
-            boolean dontBreakMotorLim = dontBreakMotor.isPressed() && pid > 0;
-
-            if(!dontBreakIntakeLim && !dontBreakMotorLim)
-            {
-                if(Math.abs(lastPower-curPow)>tol) {
-                    worm.setPower(curPow);
-                    copycat.setPower(curPow);
-                }
-                lastPower = curPow;
-            }
-
+            setPow2();
             return true;
         }
     };
@@ -183,11 +170,13 @@ public class Worm {
         {
             worm.setPower(0);
             copycat.setPower(0);
+            lastPower = 0;
         }
         else if(mechanism.wormCurrent <= EeshMechanism.WORMPICKUPPOS && power < 0)
         {
             worm.setPower(0);
             copycat.setPower(0);
+            lastPower = 0;
         }
         else if(dontBreakMotor.isPressed() && power > 0)
         {

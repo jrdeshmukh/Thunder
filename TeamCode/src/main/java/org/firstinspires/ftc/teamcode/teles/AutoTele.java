@@ -5,9 +5,11 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.BezierPoint;
 import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
@@ -45,7 +47,7 @@ public class AutoTele extends OpMode {
 
     Pose basket = new Pose(-54.1, -54.1, 5*Math.PI/4);
     Follower follower;
-    Path basketPath;
+    PathChain basketPath;
     List<Action> runningActions = new ArrayList<>();
     ColorRangeSensor colorRangeSensor;
     Timer timer;
@@ -81,7 +83,7 @@ public class AutoTele extends OpMode {
         Worm.overrideLimit = false;
         mechanism = new EeshMechanism(hardwareMap);
         mechanism.setWrist(EeshMechanism.WRISTHOVER);
-        colorRangeSensor = hardwareMap.get(ColorRangeSensor.class, "crs");
+        //colorRangeSensor = hardwareMap.get(ColorRangeSensor.class, "crs");
         //leds = hardwareMap.get(RevBlinkinLedDriver.class, "leds");
 
         gp1 = new BBG(gamepad1);
@@ -89,11 +91,12 @@ public class AutoTele extends OpMode {
 
         flippedSafety1 = false;
         flippedSafety2 = false;
+        final Pose startPose = new Pose(8, 110.9, -90);
+
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
-
-        basketPath = new Path(new BezierPoint(new Point(follower.getPose().getX(), follower.getPose().getY())));
-        follower.followPath(basketPath);
+        follower.setStartingPose(startPose);
+        follower.startTeleopDrive();
 
         timer = new Timer();
     }
@@ -133,14 +136,13 @@ public class AutoTele extends OpMode {
 
         if (gp1.b()) {
             Pose curPose = follower.getPose();
-            basketPath = new Path(
-                    new BezierLine(
-                            new Point(curPose),
+            basketPath = follower.pathBuilder().addPath(
+                    new BezierPoint(
                             new Point(basket)
                     )
-            );
-            basketPath.setLinearHeadingInterpolation(curPose.getHeading(), basket.getHeading());
-            //this.basketPath = new PathChain(basmet);
+            )
+            .setLinearHeadingInterpolation(curPose.getHeading(), basket.getHeading())
+                    .build();
             follower.followPath(basketPath, true);
         }
 
@@ -171,12 +173,12 @@ public class AutoTele extends OpMode {
         runningActions = newActions;
         //dash.sendTelemetryPacket(packet);
 
-        if((-gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x) != 0 || !autoDriving) {
+        if((gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x) != 0 || !autoDriving) {
             if(autoDriving) {
                 autoDriving = false;
                 follower.startTeleopDrive();
             }
-            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y*speedMod*sprint, -gamepad1.left_stick_x*speedMod*sprint, -gamepad1.right_stick_x*speedMod*0.75*sprint);
+            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y*speedMod*sprint, -gamepad1.left_stick_x*speedMod*sprint*1.27, -gamepad1.right_stick_x*speedMod*0.75*sprint);
         }
 
 
@@ -222,7 +224,7 @@ public class AutoTele extends OpMode {
         if(Math.abs(gamepad2.right_trigger) > 0.1)      mechanism.setWrist(mechanism.getWristPos() + inc);
         if(Math.abs(gamepad2.left_trigger) > 0.1)       mechanism.setWrist(mechanism.getWristPos() - inc);
         if(gp2.right_bumper())                          mechanism.intake.setPower(1);
-        if(gamepad2.x)                                  mechanism.worm.runToPos((int) mechanism.wormPickup);
+        if(gp2.x())                                  mechanism.worm.runToPos((int) mechanism.wormPickup);
 
         if(gp2.left_bumper())
         {
@@ -253,7 +255,7 @@ public class AutoTele extends OpMode {
 
         if(mechanism.wormCurrent < -900 /*&& !flippedSafety2*/)
         {
-            mechanism.setWrist(0.32);
+            //mechanism.setWrist(0.32);
             flippedSafety2 = true;
         }
 
@@ -263,12 +265,18 @@ public class AutoTele extends OpMode {
         }
 
 
+        telemetry.addData("x: ", follower.getPose().getX());
+        telemetry.addData("y: ", follower.getPose().getY());
+        telemetry.addData("heading: ", follower.getPose().getHeading());
+        telemetry.addData("gp1ly",gamepad1.left_stick_y);
         telemetry.addData("worm pos", mechanism.wormCurrent);
         telemetry.addData("copycat pos", mechanism.copycatCurrent);
         telemetry.addData("worm target pos", mechanism.wormCurrent);
         telemetry.addData("worm override limit?", Worm.overrideLimit);
         telemetry.addData("slide pos", mechanism.slideCurrent);
         telemetry.addData("wrist pos", mechanism.getWristPos());
+        telemetry.addData("worm power", mechanism.worm.wormPow);
+        telemetry.addData("copycat power", mechanism.worm.copycatPow);
         telemetry.addData("wirst angle: ", mechanism.getWristAngle());
         telemetry.addData("speedMod", speedMod);
         telemetry.addData("slide power: ", mechanism.slide.lastPower);

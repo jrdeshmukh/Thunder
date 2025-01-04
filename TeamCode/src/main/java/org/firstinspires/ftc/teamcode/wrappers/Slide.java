@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class Slide {
     public DcMotorEx slide;
     private final PIDController controller;
-    public static double p = 0.02, i = 0, d = 0.0003, f = 0.00005;
+    public static double p = 0.018, i = 0, d = 0.0003, f = 0.00005;
 
     public static final int BOTTOM = 0;
     public static final int HIGH_BASKET = 3150;
@@ -100,14 +100,7 @@ public class Slide {
     public class SetPow implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            int pos = mechanism.slideCurrent;
-            double pid = controller.calculate(pos, targetPosition);
-            double ff = pos * f;
-            curPow = pid + ff;
-            if(Math.abs(lastPower-curPow)>tol) {
-                slide.setPower(curPow);
-            }
-            lastPower = curPow;
+            setPow2();
             return true;
         }
     }
@@ -139,7 +132,7 @@ public class Slide {
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            return Math.abs(mechanism.slideCurrent-targetPosition)>50;
+            return Math.abs(mechanism.slideCurrent-targetPosition)>70;
         }
     }
 

@@ -24,7 +24,7 @@ public class EeshMechanism {
 
     public static double WRISTHOVER = 0.6167;
     public static double WRISTHOVERHIGH = 0.7567;
-    public static double WRIST_PICKUP_ANGLE = -48.6952991170, WRIST_DROP_ANGLE = 135, WRIST_SPECIMEN_ANGLE = 90;
+    public static double WRIST_PICKUP_ANGLE = -25.695299117, WRIST_DROP_ANGLE = 135, WRIST_SPECIMEN_ANGLE = 90;
     public boolean angle = true;
 
     public static int INTAKE_DISTANCE = 1;
@@ -110,6 +110,10 @@ public class EeshMechanism {
         matchSlide = chosenAngle==MATCH_SLIDE;
         CHOSEN_ANGLE = chosenAngle;
         angle = true;
+    }
+
+    public Action setAngleAction(double a) {
+        return new InstantAction(() -> setChosenAngle(a));
     }
 
 
