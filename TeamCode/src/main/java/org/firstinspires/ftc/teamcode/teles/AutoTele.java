@@ -12,6 +12,8 @@ import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
+import com.pedropathing.util.DashboardPoseTracker;
+import com.pedropathing.util.Drawing;
 import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
@@ -50,6 +52,7 @@ public class AutoTele extends OpMode {
     PathChain basketPath;
     List<Action> runningActions = new ArrayList<>();
     ColorRangeSensor colorRangeSensor;
+    DashboardPoseTracker dashboardPoseTracker;
     Timer timer;
     boolean autoDriving = false, firstTime = false, autoSlide = true;
     double looptime = 0.0;
@@ -89,15 +92,17 @@ public class AutoTele extends OpMode {
         gp1 = new BBG(gamepad1);
         gp2 = new BBG(gamepad2);
 
+
         flippedSafety1 = false;
         flippedSafety2 = false;
-        final Pose startPose = new Pose(8, 110.9, -90);
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(startPose);
         follower.startTeleopDrive();
 
+        dashboardPoseTracker = new DashboardPoseTracker(follower.poseUpdater);
+        Drawing.drawRobot(follower.getPose(), "#4CAF50");
+        Drawing.sendPacket();
         timer = new Timer();
     }
 
@@ -107,6 +112,8 @@ public class AutoTele extends OpMode {
         timer = new Timer();
         follower.update();
         mechanism.update();
+        dashboardPoseTracker.update();
+
         //red = colorRangeSensor.red();
         //blue = colorRangeSensor.blue();
         //green = colorRangeSensor.green();
@@ -137,13 +144,14 @@ public class AutoTele extends OpMode {
         if (gp1.b()) {
             Pose curPose = follower.getPose();
             basketPath = follower.pathBuilder().addPath(
-                    new BezierPoint(
+                    new BezierCurve(
+                            new Point(curPose),
                             new Point(basket)
                     )
             )
             .setLinearHeadingInterpolation(curPose.getHeading(), basket.getHeading())
                     .build();
-            follower.followPath(basketPath, true);
+            if(!follower.isBusy()) follower.followPath(basketPath, true);
         }
 
         if(gp2.dpad_left() || gp1.dpad_left()) {
@@ -221,7 +229,7 @@ public class AutoTele extends OpMode {
 
         if(gp2.y())                                     mechanism.setChosenAngle(-45);
         if(gp2.a())                                     mechanism.setChosenAngle(EeshMechanism.WRIST_PICKUP_ANGLE);
-        if(Math.abs(gamepad2.right_trigger) > 0.1)      mechanism.setWrist(mechanism.getWristPos() + inc);
+        if(Math.abs(gamepad2.right_trigger) > 0.1)      mechanism.worm.runToPos((int) mechanism.wormPickup);
         if(Math.abs(gamepad2.left_trigger) > 0.1)       mechanism.setWrist(mechanism.getWristPos() - inc);
         if(gp2.right_bumper())                          mechanism.intake.setPower(1);
         if(gp2.x())                                  mechanism.worm.runToPos((int) mechanism.wormPickup);
@@ -294,7 +302,9 @@ public class AutoTele extends OpMode {
         //telemetry.addData("Distance: ", colorRangeSensor.getDistance(DistanceUnit.INCH));
         //telemetry.addData("Dont Break Intake Pressed?", mechanism.worm.dontBreakIntake.isPressed());
         //telemetry.addData("Dont Break Motor Pressed?", mechanism.worm.dontBreakMotor.isPressed());
-
+        Drawing.drawPoseHistory(dashboardPoseTracker, "#4CAF50");
+        Drawing.drawRobot(follower.getPose(), "#4CAF50");
+        Drawing.sendPacket();
 
         telemetry.update();
 

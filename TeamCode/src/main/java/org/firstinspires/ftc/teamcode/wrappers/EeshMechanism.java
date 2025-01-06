@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Config
 public class EeshMechanism {
 
-
+    public static double X = 2000, Y = 720;
     public static int WORMPICKUPPOS = -9100; //minimum
     public static double WORMMAX = 1500;
     public static double WRISTDOWNPOSSUBMERSIBLE = 0.4572;
@@ -33,7 +33,7 @@ public class EeshMechanism {
     public Servo wristL, wristR;
 
     public CRServo intake;
-    public static double WRIST_FLAT = 0.576, DEGREE_TO_POS = 280.6361;
+    public static double WRIST_FLAT = 0.421, DEGREE_TO_POS = -261.39;
     public static double WRIST_UP = 90, WRIST_OUT = 0, WRIST_DOWN = -90, WRIST_SCORE = 180, MATCH_SLIDE = 270;
     public static double SLIDE_TICKS_HEIGHT = 460;
     public static double WORM_START = 1462;
@@ -100,7 +100,7 @@ public class EeshMechanism {
         copycatCurrent = -backRight.getCurrentPosition();
         wormCurrent = frontRight.getCurrentPosition();
         slideCurrent = -frontLeft.getCurrentPosition();
-        wormPickup = worm.calcNeededPos(Math.toDegrees(Math.asin(785.52/(2200+this.slideCurrent))));
+        wormPickup = worm.calcNeededPos(Math.toDegrees(Math.asin(Y/(X+this.slideCurrent))));
         wristCurrent = (CHOSEN_ANGLE-worm.getAngle())/DEGREE_TO_POS + WRIST_FLAT;
         if(matchSlide) {
             setWrist(0.1);
