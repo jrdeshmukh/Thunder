@@ -303,14 +303,14 @@ public class CACAauto extends LinearOpMode {
         Path scoreExtra1 = new Path(
                 new BezierLine(
                         new Point(25.5667, 34),
-                        new Point(35.8453, 61.4782)
+                        new Point(29, 61.4782)
                 )
         );
         scoreExtra1.setLinearHeadingInterpolation(5.418, 4.7443);
 
         Path scoreExtra2 = new Path(
                 new BezierLine(
-                        new Point(35.8453, 61.4782),
+                        new Point(29, 61.4782),
                         new Point(20.75, 118.25)
                 )
         );
