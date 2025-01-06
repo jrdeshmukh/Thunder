@@ -76,6 +76,12 @@ public class EeshMechanism {
     }
     public Action startIntake() {return new InstantAction(() -> intake.setPower(1));}
     public Action drop() {return new InstantAction(() -> intake.setPower(-1));}
+    public Action dunk() {return new InstantAction(this::dunkIntake);}
+
+    public void dunkIntake(){
+        setChosenAngle(300);
+        intake.setPower(-1);
+    }
 
     public class UpdateAction implements Action {
 
@@ -94,7 +100,7 @@ public class EeshMechanism {
         copycatCurrent = -backRight.getCurrentPosition();
         wormCurrent = frontRight.getCurrentPosition();
         slideCurrent = -frontLeft.getCurrentPosition();
-        wormPickup = worm.calcNeededPos(Math.toDegrees(Math.asin(785.52/(2000+this.slideCurrent))));
+        wormPickup = worm.calcNeededPos(Math.toDegrees(Math.asin(785.52/(2200+this.slideCurrent))));
         wristCurrent = (CHOSEN_ANGLE-worm.getAngle())/DEGREE_TO_POS + WRIST_FLAT;
         if(matchSlide) {
             setWrist(0.1);

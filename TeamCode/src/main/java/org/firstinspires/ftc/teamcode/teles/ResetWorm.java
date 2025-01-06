@@ -35,6 +35,10 @@ public class ResetWorm extends OpMode {
         if(Math.abs(gamepad2.left_stick_y)>0.25) {
             mechanism.setWorm(-gamepad2.left_stick_y * pow);
         }
+        if(gamepad2.dpad_up)
+        {
+            mechanism.setWorm(0.2);
+        }
 
 
 
