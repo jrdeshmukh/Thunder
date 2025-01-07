@@ -168,9 +168,6 @@ public class AutoTele extends OpMode {
         //updateState();
         //leds.setPattern(new Patter);
 
-        if(gp1.dpad_up()) speedMod += 0.1;
-        if(gp1.dpad_down()) speedMod -= 0.1;
-
         sprint = Math.abs(gamepad1.right_trigger) > 0.25 ? 2:1;
 
 
@@ -178,7 +175,7 @@ public class AutoTele extends OpMode {
             runningActions.add(new SequentialAction(
                     mechanism.worm.autoMove(1295),
                     mechanism.worm.waitUntilDone(),
-                    new InstantAction(() -> mechanism.setChosenAngle(150)),
+                    new InstantAction(() -> mechanism.setChosenAngle(172.5)),
                     mechanism.slide.autoMove(2368)
             ));
         }
