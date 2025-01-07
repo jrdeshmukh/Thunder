@@ -136,8 +136,20 @@ public class Slide {
         }
     }
 
+    public class StartDispensing implements Action {
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            return Math.abs(mechanism.slideCurrent-targetPosition)>200;
+        }
+    }
+
     public Action waitUntilDone() {
         return new WaitUntilClose();
+    }
+
+    public Action startDispensing() {
+        return new StartDispensing();
     }
 
     public class LiftHigh implements Action {

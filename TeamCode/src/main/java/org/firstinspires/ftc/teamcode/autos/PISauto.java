@@ -33,7 +33,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Autonomous()
-public class CACAauto extends LinearOpMode {
+public class PISauto extends LinearOpMode {
 
     Follower follower;
     EeshMechanism m;
@@ -114,10 +114,16 @@ public class CACAauto extends LinearOpMode {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
         m = new EeshMechanism(hardwareMap);
-        final Pose dropPoseNew = new Pose(29.0915, 132.4722, 0);
+
         final Pose startPose = new Pose(8, 110.9, Math.toRadians(-90));
-        final Pose dropFirstTwoPose = new Pose(11.5427, 114.044);
-        final Pose dropLastThree = new Pose(30.882, 118.6709);
+        final Pose dropPoseNew = new Pose(20.5, 122, 5.8);
+        final Pose pickup1Pose = new Pose(23, 122, 5.8);
+        final Pose dropPose1 = new Pose(27, 130, 6.28);
+
+        final Pose pickup2Pose1 = new Pose(23, 125, 6.28);
+        final Pose pickup2Pose2 = new Pose(27, 125, 6.28);
+
+
         Constants.setConstants(FConstants.class, LConstants.class);
 
         follower = new Follower(hardwareMap);
@@ -126,10 +132,10 @@ public class CACAauto extends LinearOpMode {
         Path dropPreload = new Path(
                 new BezierLine(
                         new Point(startPose),
-                        new Point(dropFirstTwoPose)
+                        new Point(dropPoseNew)
                 )
         );
-        dropPreload.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-67.3));
+        dropPreload.setLinearHeadingInterpolation(Math.toRadians(-90), 5.8);
 
      /*   Path pickupTeammate =  new Path(
                 new BezierLine(
@@ -156,66 +162,46 @@ public class CACAauto extends LinearOpMode {
         scoreTeammate.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-67.3));*/
 
 
-        Path pickup10 = new Path(
-                new BezierLine(
-                        new Point(dropFirstTwoPose),
-                        //new Point(11.5427, 117.4),
-                        new Point(15, 117.5)//subtrat 0.5
-                )
-        );
-        pickup10.setLinearHeadingInterpolation(Math.toRadians(-67.3), Math.toRadians(0));
-
         Path pickup1 = new Path(
                 new BezierLine(
-                        new Point(15, 117.5),//subtrat 0.5
+                        new Point(dropPoseNew),
                         //new Point(11.5427, 117.4),
-                        new Point(21, 117.5)//subtrat 0.5
+                        new Point(pickup1Pose)//subtrat 0.5
                 )
         );
-        pickup1.setConstantHeadingInterpolation(Math.toRadians(0));
-
-        Path pickup12 = new Path(
-                new BezierLine(
-                        new Point(21, 117.5),//subtrat 0.5
-                        new Point(26.5, 117.5)//subtrat 0.5
-
-                )
-        );
-        pickup12.setConstantHeadingInterpolation(Math.toRadians(0));
+        pickup1.setConstantHeadingInterpolation(5.8);
 
 
         Path score1 = new Path(
                 new BezierLine(
-                        new Point(25, 117.5),
-                        new Point(new Pose(21, 117))
+                        new Point(pickup1Pose),
+                        new Point(dropPose1)
 
                 )
         );
-        score1.setLinearHeadingInterpolation(0, 5.5078);
-
-        Path pickup20 = new Path(
-                new BezierLine(
-                        new Point(new Pose(21, 117)),
-                        new Point(14, 125.5)//subtrat 1
-                )
-        );
-        pickup20.setLinearHeadingInterpolation(5.5078, 0);
+        score1.setLinearHeadingInterpolation(5.8, 6.28);
 
         Path pickup21 = new Path(
                 new BezierLine(
-                        new Point(14, 125.5),//subtrat 1
-                        new Point(19, 125.5)//subtrat 1
-                )
-        );
-        pickup21.setConstantHeadingInterpolation(0);
+                        new Point(dropPose1),
+                        new Point(pickup2Pose1)//subtrat 1
+                ));
+        pickup21.setConstantHeadingInterpolation(6.28);
 
         Path pickup22 = new Path(
                 new BezierLine(
-                        new Point(19, 125.5),//subtrat 1
-                        new Point(24.5, 125.5)//subtrat 1
-                )
+                        new Point(pickup2Pose1),
+                        new Point(pickup2Pose2)//subtrat 1
+                ));
+        pickup22.setConstantHeadingInterpolation(6.28);
+
+        PathChain pickup2 = new PathChain(
+                pickup21, pickup22
+
         );
-        pickup22.setConstantHeadingInterpolation(Math.toRadians(0));
+
+
+
 
         Path score2 = new Path(
                 new BezierLine(
@@ -350,15 +336,14 @@ public class CACAauto extends LinearOpMode {
                         new FollowerUpdate(),
                         new SequentialAction(
                                 m.startIntake(),
-                                m.worm.autoMove(1300),
+                                m.worm.autoMove(1250),
                                 followUntilDone(dropPreload),
-                                new SleepAction(0.5),
                                 m.worm.waitUntilDone(),
-                                //new SleepAction(0.4),
-                                m.slide.autoMove(2320),
+                                new SleepAction(0.4),
+                                m.slide.autoMove(2365),
                                 new ParallelAction(
                                         //new SleepAction(0.4),
-                                        new InstantAction(() -> m.setChosenAngle(200))
+                                        new InstantAction(() -> m.setChosenAngle(150))
                                 ),
                                 m.slide.waitUntilDone(),
                                 new SleepAction(0.24),
@@ -368,34 +353,13 @@ public class CACAauto extends LinearOpMode {
                                 m.slide.liftBottom(),
                                 m.slide.waitUntilDone(),
                                 m.startIntake(),
-                               /* m.worm.autoMove(-1035),
-                                m.worm.waitUntilDone(),
-                                m.slide.waitUntilDone(),
-                                new SleepAction(0.8),
-                                followUntilDone(pickupTeammate),
-                                followUntilDone(pickupTeammate2),
-                                m.worm.autoMove(1300),
-                                followUntilDone(scoreTeammate),
-                                m.slide.autoMove(2330),
-                                new ParallelAction(
-                                        new SleepAction(1),
-                                        new InstantAction(() -> m.setChosenAngle(200))
-                                ),
-                                m.slide.waitUntilDone(),
-                                m.drop(),
-                                new SleepAction(0.5),
-                                m.setAngleAction(EeshMechanism.WRIST_PICKUP_ANGLE),
-                                m.startIntake(),
-                                new SleepAction(0.5),
-                                m.slide.liftBottom(),*/
+
                                 m.worm.autoMove(-1030),
-                                followUntilDone(pickup10),
                                 //new SleepAction(0.6),
                                 //new SleepAction(0.4),
-                                new SleepAction(0.5),
                                 m.worm.waitUntilDone(),
                                 followUntilDone(pickup1),
-                                followUntilDone(pickup12),
+                                //followUntilDone(pickup12),
                                 //new SleepAction(1),
                                 m.worm.autoMove(1295),
                                 new InstantAction(() -> m.setChosenAngle(150)),
@@ -418,12 +382,9 @@ public class CACAauto extends LinearOpMode {
 
 
 
-                                followUntilDone(pickup20),
-                                new SleepAction(0.5),
                                 m.worm.waitUntilDone(),
                                 //new SleepAction(0.25),
-                                followUntilDone(pickup21),
-                                followUntilDone(pickup22),
+                                followUntilDoneChain(pickup2),
                                 m.worm.autoMove(1295),
                                 new InstantAction(() -> m.setChosenAngle(150)),
                                 followUntilDone(score2),
@@ -439,7 +400,7 @@ public class CACAauto extends LinearOpMode {
                                 m.slide.liftBottom(),
                                 m.slide.waitUntilDone(),
                                 m.startIntake(),
-                                m.worm.autoMove(-1030),
+                                m.worm.autoMove(-1030)/*,
 
 
                                 m.worm.waitUntilDone(),
@@ -507,7 +468,7 @@ public class CACAauto extends LinearOpMode {
                                 m.slide.liftBottom(),
                                 m.slide.waitUntilDone(),
                                 m.startIntake(),
-                                m.worm.autoMove(-1030)
+                                m.worm.autoMove(-1030)*/
 
 
                         )

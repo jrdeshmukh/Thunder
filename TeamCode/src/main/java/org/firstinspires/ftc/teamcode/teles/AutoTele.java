@@ -311,7 +311,7 @@ public class AutoTele extends OpMode {
         if(gp2.left_bumper())
         {
             mechanism.intake.setPower(-1);
-            mechanism.setWrist(0.83);
+            //mechanism.setWrist(0.83);
         }
 
         if(gamepad2.dpad_up)

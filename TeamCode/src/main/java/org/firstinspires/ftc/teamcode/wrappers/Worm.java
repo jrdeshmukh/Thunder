@@ -112,7 +112,7 @@ public class Worm {
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            return Math.abs(mechanism.wormCurrent-targetPosition)>20;
+            return Math.abs(mechanism.wormCurrent-targetPosition)>30;
         }
     }
 
