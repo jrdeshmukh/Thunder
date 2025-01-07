@@ -1,8 +1,13 @@
 package org.firstinspires.ftc.teamcode.teles;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -24,12 +29,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.autos.FiveYlw;
 import org.firstinspires.ftc.teamcode.wrappers.BBG;
 import org.firstinspires.ftc.teamcode.wrappers.EeshMechanism;
 import org.firstinspires.ftc.teamcode.wrappers.Worm;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -47,7 +54,8 @@ public class AutoTele extends OpMode {
     FtcDashboard dash = FtcDashboard.getInstance();
 
 
-    Pose basket = new Pose(-54.1, -54.1, 5*Math.PI/4);
+    Pose basket = new Pose();
+    Pose cp = new Pose();
     Follower follower;
     PathChain basketPath;
     List<Action> runningActions = new ArrayList<>();
@@ -71,6 +79,35 @@ public class AutoTele extends OpMode {
     int red, blue, green;
 
 
+    public class WaitUntilDone implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            return follower.isBusy();
+        }
+    }
+
+    public Action followUntilDone(PathChain a) {
+        return new FollowUntilDone(a);
+    }
+
+    public class FollowUntilDone implements Action {
+
+        PathChain a;
+        boolean called = false;
+
+        public FollowUntilDone(PathChain a)  {
+            this.a = a;
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            if(!called) {
+                follower.followPath(a);
+                called = true;
+            }
+            return follower.isBusy();
+        }
+    }
 
 
 
@@ -98,7 +135,7 @@ public class AutoTele extends OpMode {
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
-        follower.startTeleopDrive();
+         follower.startTeleopDrive();
 
         dashboardPoseTracker = new DashboardPoseTracker(follower.poseUpdater);
         Drawing.drawRobot(follower.getPose(), "#4CAF50");
@@ -139,6 +176,13 @@ public class AutoTele extends OpMode {
 
         if(gp1.a()) {
             basket = follower.getPose();
+            if (Objects.equals(cp, new Pose())) {
+                cp = basket;
+            }
+        }
+
+        if(gp2.x()) {
+            cp = follower.getPose();
         }
 
         if (gp1.b()) {
@@ -150,8 +194,38 @@ public class AutoTele extends OpMode {
                     )
             )
             .setLinearHeadingInterpolation(curPose.getHeading(), basket.getHeading())
-                    .build();
+            .build();
             if(!follower.isBusy()) follower.followPath(basketPath, true);
+        }
+
+        if (gp1.y()) {
+            Pose curPose = follower.getPose();
+            basketPath = follower.pathBuilder().addPath(
+                            new BezierCurve(
+                                    new Point(curPose),
+                                    new Point(cp),
+                                    new Point(basket)
+                            )
+                    )
+                    .setLinearHeadingInterpolation(curPose.getHeading(), basket.getHeading())
+                    .build();
+        if(!follower.isBusy()) runningActions.add(new SequentialAction(
+                    mechanism.worm.autoMove(1295),
+                    new InstantAction(() -> mechanism.setChosenAngle(150)),
+                    followUntilDone(basketPath),
+                    mechanism.worm.waitUntilDone(),
+                    mechanism.slide.autoMove(2368)
+            ));
+        }
+
+        if(gp2.dpad_down()) {
+            runningActions.add(new SequentialAction(
+                    mechanism.slide.liftBottom(),
+                    mechanism.slide.waitUntilDone(),
+                    mechanism.setAngleAction(EeshMechanism.WRIST_PICKUP_ANGLE),
+                    mechanism.startIntake(),
+                    mechanism.worm.autoMove(-1030)
+            ));
         }
 
         if(gp2.dpad_left() || gp1.dpad_left()) {
@@ -238,11 +312,6 @@ public class AutoTele extends OpMode {
         {
             mechanism.intake.setPower(-1);
             mechanism.setWrist(0.83);
-        }
-
-        if(gamepad2.dpad_down)
-        {
-            mechanism.setWrist(EeshMechanism.WRISTHOVER);
         }
 
         if(gamepad2.dpad_up)
