@@ -18,18 +18,19 @@ public class Slide {
     private final PIDController controller;
     public static double p = 0.018, i = 0, d = 0.0003, f = 0.00005;
 
-    public static final int BOTTOM = 0;
-    public static final int HIGH_BASKET = 3150;
-    public static final int LOW_BASKET = 1875;
-    public static final int HIGH_RUNG = 1013;
-    public static final int APPROACH_HANG = 1520;
-    public static final int SCORE_SPECIMEN = 870;
+    public static
+    int BOTTOM = 0;
+    public static  int HIGH_BASKET = 3150;
+    public static  int LOW_BASKET = 1875;
+    public static  int HIGH_RUNG = 1013;
+    public boolean passed = false;
+    public static  int APPROACH_HANG = 1520;
+    public static  int SCORE_SPECIMEN = 870;
     public static double curPow = 0;
-    public static final int MAX_FLAT_POS = 1700; //1722 ticks = 37 inches
-    public static final int MAX_UP_POS = 3200; //highest it can physically go
+    public static  int MAX_FLAT_POS = 994; //1722 ticks = 37 inches
+    public static  int MAX_UP_POS = 3200; //highest it can physically go
     public static int fullExtension = 1722;
     public double lastPower = 15, tol = 0.01;
-    public boolean changing = false;
     Worm worm;
 
 
@@ -49,11 +50,12 @@ public class Slide {
 
     public void runToPos(int targetPosition) {
         this.targetPosition = targetPosition;
+        passed = false;
         humanControl = false;
     }
 
     public void update() {
-        fullExtension = (int) Math.abs(Math.min(MAX_UP_POS, (MAX_FLAT_POS/Math.cos(Math.toRadians(worm.getAngle())))));
+        fullExtension = (int) Math.abs(Math.min(MAX_UP_POS, ((MAX_FLAT_POS+2000)/Math.cos(Math.toRadians(worm.getAngle())))-2000));
     }
 
     public int getFullExtension() {
@@ -65,8 +67,7 @@ public class Slide {
         int pos = mechanism.slideCurrent;
         double ff = (pos+1865) * f * Math.sin(Math.toRadians(worm.getAngle()));
         if(humanControl) {
-            changing = true;
-            if((lastPower-ff)>tol) {
+            if(Math.abs(lastPower-ff)>tol) {
                 slide.setPower(ff);
                 lastPower = ff;
             }
@@ -192,18 +193,17 @@ public class Slide {
 
     public void setPower(double power) {
         humanControl = true;
-        if(mechanism.slideCurrent < getFullExtension() || power < 0) {
+        if(mechanism.slideCurrent > getFullExtension()) passed = true;
+        if(power < 0) passed = false;
+        if(!passed) {
             if(Math.abs(lastPower-power)>tol) {
                 slide.setPower(power);
             }
             lastPower = power;
-
         }
         else{
-            if(Math.abs(lastPower-p*(fullExtension-mechanism.slideCurrent))>tol) {
-                slide.setPower(p*(fullExtension-mechanism.slideCurrent));
-            }
-            lastPower = p*(fullExtension-mechanism.slideCurrent);
+            runToPos(getFullExtension());
+            setPow2();
         }
     }
 

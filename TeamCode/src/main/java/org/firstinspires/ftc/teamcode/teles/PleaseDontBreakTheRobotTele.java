@@ -1,12 +1,16 @@
 package org.firstinspires.ftc.teamcode.teles;
 
+import com.pedropathing.follower.Follower;
+import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.wrappers.MecanumDrive;
 import org.firstinspires.ftc.teamcode.wrappers.BBG;
 import org.firstinspires.ftc.teamcode.wrappers.EeshMechanism;
 import org.firstinspires.ftc.teamcode.wrappers.Worm;
+
+import pedroPathing.constants.FConstants;
+import pedroPathing.constants.LConstants;
 
 @TeleOp
 public class PleaseDontBreakTheRobotTele extends OpMode {
@@ -17,7 +21,7 @@ public class PleaseDontBreakTheRobotTele extends OpMode {
     double speedMod = 0.5;
     boolean sprint = false;
 
-    public MecanumDrive drive;
+    public Follower drive;
     public boolean flippedSafety1, flippedSafety2;
 
 
@@ -29,7 +33,9 @@ public class PleaseDontBreakTheRobotTele extends OpMode {
         Worm.overrideLimit = false;
         mechanism = new EeshMechanism(hardwareMap);
         mechanism.setWrist(EeshMechanism.WRISTHOVER);
-        drive = new MecanumDrive(hardwareMap);
+        Constants.setConstants(FConstants.class, LConstants.class);
+        drive = new Follower(hardwareMap);
+        drive.startTeleopDrive();
 
         gp1 = new BBG(gamepad1);
         gp2 = new BBG(gamepad2);
@@ -50,19 +56,7 @@ public class PleaseDontBreakTheRobotTele extends OpMode {
         double x = gamepad1.left_stick_x; // this is strafing
         double rx = gamepad1.right_stick_x;
 
-        // Denominator is the largest motor power (absolute value) or 1
-        // This ensures all the powers maintain the same ratio, but only when
-        // at least one is out of the range [-1, 1]
-        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-        double leftFrontPower = (y + x + rx) / denominator;
-        double leftRearPower = (y - x + rx) / denominator;
-        double rightFrontPower = (y - x - rx) / denominator;
-        double rightRearPower = (y + x - rx) / denominator;
-
-        drive.leftFront.setPower(sprint ? leftFrontPower * speedMod * 2 : leftFrontPower * speedMod);
-        drive.leftBack.setPower(sprint ? leftRearPower * speedMod * 2: leftRearPower * speedMod);
-        drive.rightFront.setPower(sprint ? rightFrontPower * speedMod * 2:  rightFrontPower * speedMod);
-        drive.rightBack.setPower(sprint ? rightRearPower * speedMod * 2: rightRearPower * speedMod);
+        drive.setTeleOpMovementVectors(y, x, rx);
 
         /*if(mechanism.worm.worm.getCurrentPosition() <= 0 && mechanism.slide.slide.getCurrentPosition() >= 20)
         {
