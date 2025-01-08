@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Config
 public class EeshMechanism {
 
-    public static double X = 2000, Y = 705;
+    public static double X = 2000, Y = 790;
     public static int WORMPICKUPPOS = -9100; //minimum
     public static double WORMMAX = 1500;
     public static double WRISTDOWNPOSSUBMERSIBLE = 0.4572;
@@ -24,7 +24,7 @@ public class EeshMechanism {
 
     public static double WRISTHOVER = 0.6167;
     public static double WRISTHOVERHIGH = 0.7567;
-    public static double WRIST_PICKUP_ANGLE = -25.695299117, WRIST_DROP_ANGLE = 135, WRIST_SPECIMEN_ANGLE = 90;
+    public static double WRIST_PICKUP_ANGLE = -40, WRIST_DROP_ANGLE = 135, WRIST_SPECIMEN_ANGLE = 90;
     public boolean angle = true;
 
     public static int INTAKE_DISTANCE = 1;

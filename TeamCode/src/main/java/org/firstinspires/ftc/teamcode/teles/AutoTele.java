@@ -104,7 +104,7 @@ public class AutoTele extends OpMode {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             if(!called) {
-                follower.followPath(a);
+                follower.followPath(a, true);
                 called = true;
             }
             return follower.isBusy();
@@ -114,7 +114,7 @@ public class AutoTele extends OpMode {
     public Action follow(PathChain a) {
         return new InstantAction(() -> {
             if (!follower.isBusy()) {
-                follower.followPath(a);
+                follower.followPath(a, true);
             }
         });
     }
@@ -186,9 +186,9 @@ public class AutoTele extends OpMode {
 
         if(gp1.dpad_up()) {
             runningActions.add(new SequentialAction(
-                    mechanism.worm.autoMove(1295),
+                    mechanism.worm.autoMove(1420),
                     mechanism.worm.waitUntilDone(),
-                    new InstantAction(() -> mechanism.setChosenAngle(172.5)),
+                    new InstantAction(() -> mechanism.setChosenAngle(180)),
                     mechanism.slide.autoMove(2368)
             ));
         }
@@ -219,10 +219,10 @@ public class AutoTele extends OpMode {
                     new InstantAction(() -> mechanism.setChosenAngle(15)),
                     mechanism.slide.liftBottom(),
                     mechanism.slide.waitUntilDone(),
-                    mechanism.worm.autoMove(1295),
+                    mechanism.worm.autoMove(1420),
                     follow(basketPath),
                     mechanism.worm.waitUntilDone(),
-                    new InstantAction(() -> mechanism.setChosenAngle(150)),
+                    new InstantAction(() -> mechanism.setChosenAngle(180)),
                     mechanism.slide.autoMove(2368)
             ));
         }
@@ -247,10 +247,10 @@ public class AutoTele extends OpMode {
                     new InstantAction(() -> mechanism.setChosenAngle(15)),
                     mechanism.slide.liftBottom(),
                     mechanism.slide.waitUntilDone(),
-                    mechanism.worm.autoMove(1295),
+                    mechanism.worm.autoMove(1420),
                     follow(basketPath),
                     mechanism.worm.waitUntilDone(),
-                    new InstantAction(() -> mechanism.setChosenAngle(150)),
+                    new InstantAction(() -> mechanism.setChosenAngle(180)),
                     mechanism.slide.autoMove(2368)
             ));
         }
