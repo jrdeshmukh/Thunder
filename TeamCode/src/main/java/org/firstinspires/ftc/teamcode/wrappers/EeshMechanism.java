@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Config
 public class EeshMechanism {
 
-    public static double X = 2000, Y = 720;
+    public static double X = 2000, Y = 705;
     public static int WORMPICKUPPOS = -9100; //minimum
     public static double WORMMAX = 1500;
     public static double WRISTDOWNPOSSUBMERSIBLE = 0.4572;

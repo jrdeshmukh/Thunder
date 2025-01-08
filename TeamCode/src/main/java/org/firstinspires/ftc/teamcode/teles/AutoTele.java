@@ -168,17 +168,27 @@ public class AutoTele extends OpMode {
         //updateState();
         //leds.setPattern(new Patter);
 
-        if(gp1.dpad_up()) speedMod += 0.1;
-        if(gp1.dpad_down()) speedMod -= 0.1;
 
         sprint = Math.abs(gamepad1.right_trigger) > 0.25 ? 2:1;
+        if(Math.abs(gamepad1.left_trigger)>0.1) {
+            sprint = 0.5;
+        }
+
+        if(gp2.dpad_down()) {
+            EeshMechanism.Y -= 20;
+        }
+        if(gp2.dpad_up()) {
+            EeshMechanism.Y += 20;
+        }
 
 
-        if(gp2.dpad_up() || gp1.dpad_up()) {
+
+
+        if(gp1.dpad_up()) {
             runningActions.add(new SequentialAction(
                     mechanism.worm.autoMove(1295),
                     mechanism.worm.waitUntilDone(),
-                    new InstantAction(() -> mechanism.setChosenAngle(150)),
+                    new InstantAction(() -> mechanism.setChosenAngle(172.5)),
                     mechanism.slide.autoMove(2368)
             ));
         }
@@ -205,7 +215,16 @@ public class AutoTele extends OpMode {
             )
             .setLinearHeadingInterpolation(curPose.getHeading(), basket.getHeading())
             .build();
-            if(!follower.isBusy()) follower.followPath(basketPath, true);
+            if(!follower.isBusy()) runningActions.add(new SequentialAction(
+                    new InstantAction(() -> mechanism.setChosenAngle(15)),
+                    mechanism.slide.liftBottom(),
+                    mechanism.slide.waitUntilDone(),
+                    mechanism.worm.autoMove(1295),
+                    follow(basketPath),
+                    mechanism.worm.waitUntilDone(),
+                    new InstantAction(() -> mechanism.setChosenAngle(150)),
+                    mechanism.slide.autoMove(2368)
+            ));
         }
 
         if(gp1.left_bumper()) {
@@ -237,7 +256,7 @@ public class AutoTele extends OpMode {
         }
 
 
-        if(gp2.dpad_down() || gp1.dpad_down()) {
+        if(gp1.dpad_down()) {
             if(!returnToSub) {
                 runningActions.add(new SequentialAction(
                         mechanism.drop(),
