@@ -116,7 +116,7 @@ public class CACAauto extends LinearOpMode {
         m = new EeshMechanism(hardwareMap);
         final Pose dropPoseNew = new Pose(29.0915, 132.4722, 0);
         final Pose startPose = new Pose(8, 110.9, Math.toRadians(-90));
-        final Pose dropFirstTwoPose = new Pose(13, 115);
+        final Pose dropFirstTwoPose = new Pose(15, 115);
         final Pose dropLastThree = new Pose(30.882, 118.6709);
         Constants.setConstants(FConstants.class, LConstants.class);
 
@@ -204,22 +204,22 @@ public class CACAauto extends LinearOpMode {
         Path pickup21 = new Path(
                 new BezierLine(
                         new Point(14, 125.5),//subtrat 1
-                        new Point(19, 125.5)//subtrat 1
+                        new Point(19, 127.15)//subtrat 1
                 )
         );
         pickup21.setConstantHeadingInterpolation(0);
 
         Path pickup22 = new Path(
                 new BezierLine(
-                        new Point(19, 125.5),//subtrat 1
-                        new Point(24.5, 125.5)//subtrat 1
+                        new Point(19, 127.15),//subtrat 1
+                        new Point(24.5, 127.15)//subtrat 1
                 )
         );
         pickup22.setConstantHeadingInterpolation(Math.toRadians(0));
 
         Path score2 = new Path(
                 new BezierLine(
-                        new Point(24.5, 126.2),//subtrat 1
+                        new Point(24.5, 127.15),//subtrat 1
                         new Point(new Pose(22, 120.5))
                 )
         );
@@ -232,22 +232,22 @@ public class CACAauto extends LinearOpMode {
         Path pickup3 = new Path(
                 new BezierLine(
                         new Point(new Pose(22, 120.5)),
-                        new Point(26, 121)
+                        new Point(24, 122.5)
                 )
         );
         pickup3.setLinearHeadingInterpolation(5.5078, 0.8);
 
         Path pickup32 = new Path(
                 new BezierLine(
-                        new Point(26, 121),
-                        new Point(28, 122)
+                        new Point(24, 122.5),
+                        new Point(29, 122.5)
                 )
         );
         pickup32.setConstantHeadingInterpolation(0.8);
 
         Path score3 = new Path(
                 new BezierLine(
-                        new Point(28, 122),
+                        new Point(29, 122.5),
                         new Point(23, 118.25)
                 )
         );
@@ -442,8 +442,9 @@ public class CACAauto extends LinearOpMode {
                                 m.worm.autoMove(-1030),
 
 
-                                m.worm.waitUntilDone(),
                                 followUntilDone(pickup3),
+                                new SleepAction(0.5),
+                                m.worm.waitUntilDone(),
                                 followUntilDone(pickup32),
                                 //new SleepAction(0.5),
                                 m.worm.autoMove(1295),

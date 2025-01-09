@@ -25,6 +25,7 @@ import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -66,6 +67,8 @@ public class AutoTele extends OpMode {
     boolean autoDriving = false, firstTime = false, autoSlide = true;
     double looptime = 0.0;
     boolean firstStateSwitch= true;
+
+    public Servo sweeper;
 
     enum IntakeState {
         INTAKING,
@@ -139,6 +142,8 @@ public class AutoTele extends OpMode {
         gp1 = new BBG(gamepad1);
         gp2 = new BBG(gamepad2);
 
+        sweeper = hardwareMap.servo.get("sweeper");
+
 
         flippedSafety1 = false;
         flippedSafety2 = false;
@@ -192,7 +197,9 @@ public class AutoTele extends OpMode {
                     mechanism.slide.autoMove(2368)
             ));
         }
-
+        
+        if(gp1.dpad_right()) sweeper.setPosition(0);
+        if(gp1.dpad_left()) sweeper.setPosition(0.85);
 
         if(gp1.a()) {
             basket = follower.getPose();
@@ -372,6 +379,8 @@ public class AutoTele extends OpMode {
         if(Math.abs(gamepad2.left_trigger) > 0.1)       mechanism.setWrist(mechanism.getWristPos() - inc);
         if(gp2.right_bumper())                          mechanism.intake.setPower(1);
         if(gp2.x())                                  mechanism.worm.runToPos((int) mechanism.wormPickup);
+
+        //if(Math.abs(gp2.right_trigger) > 0.25 && mechanism.slide.slide.getCurrentPosition() >= 0)
 
         if(gp2.left_bumper())
         {
