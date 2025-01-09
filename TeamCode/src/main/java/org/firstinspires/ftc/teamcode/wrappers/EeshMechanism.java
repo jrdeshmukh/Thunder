@@ -15,6 +15,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Config
 public class EeshMechanism {
 
+    public static int ROHAN_WORM_POS = -1130;
+    public static int ROHAN_SLIDE_POS = 1053;
+
     public static double X = 2000, Y = 790;
     public static int WORMPICKUPPOS = -9100; //minimum
     public static double WORMMAX = 1500;
