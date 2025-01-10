@@ -299,10 +299,8 @@ public class AutoTele extends OpMode {
 
 
         if(gp2.y()) {
-            runningActions.add(new SequentialAction(
-                    mechanism.worm.autoMove(EeshMechanism.ROHAN_WORM_POS),
-                    mechanism.slide.autoMove(EeshMechanism.ROHAN_SLIDE_POS)
-            ));
+            mechanism.worm.runToPos(EeshMechanism.ROHAN_WORM_POS);
+            mechanism.slide.runToPos(EeshMechanism.ROHAN_SLIDE_POS);
         }
 
 
@@ -318,7 +316,7 @@ public class AutoTele extends OpMode {
         }
         
 
-        if(gp2.ps || gp1.ps) {
+        if(gp2.ps || gp1.ps || gp1.right_stick_button || gp1.left_stick_button) {
             runningActions = new ArrayList<>();
             mechanism.setWorm(0);
             mechanism.slide.setPower(0);
