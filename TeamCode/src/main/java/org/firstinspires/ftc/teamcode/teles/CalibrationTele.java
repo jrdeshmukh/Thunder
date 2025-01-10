@@ -40,6 +40,7 @@ public class CalibrationTele extends OpMode {
     @Override
     public void loop() {
         follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
+        mechanism.update();
 
         double wristPos = mechanism.getWristPos();
         double increment = 0.01;
@@ -60,7 +61,7 @@ public class CalibrationTele extends OpMode {
 
 
         telemetry.addData("Wrist Pos: ", mechanism.wristL.getPosition());
-        telemetry.addData("Slide Pos", slide.slide.getCurrentPosition());
+        telemetry.addData("Slide Pos", mechanism.slideCurrent);
         telemetry.addData("Wrist Angle: ", mechanism.getWristAngle());
         telemetry.addData("Slide power: ", gamepad2.right_stick_y);
 

@@ -25,6 +25,7 @@ import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -62,6 +63,7 @@ public class AutoTele extends OpMode {
     List<Action> runningActions = new ArrayList<>();
     ColorRangeSensor colorRangeSensor;
     DashboardPoseTracker dashboardPoseTracker;
+    Servo sweeper;
     Timer timer;
     boolean autoDriving = false, firstTime = false, autoSlide = true;
     double looptime = 0.0;
@@ -78,7 +80,6 @@ public class AutoTele extends OpMode {
 
     boolean redTeam = true;
     int red, blue, green;
-    boolean returnToSub = false;
 
 
     public class WaitUntilDone implements Action {
@@ -173,15 +174,9 @@ public class AutoTele extends OpMode {
 
         sprint = Math.abs(gamepad1.right_trigger) > 0.25 ? 2:1;
         if(Math.abs(gamepad1.left_trigger)>0.1) {
-            sprint = 0.5;
+            sprint = 0.4;
         }
 
-        if(gp2.dpad_down()) {
-            EeshMechanism.Y -= 20;
-        }
-        if(gp2.dpad_up()) {
-            EeshMechanism.Y += 20;
-        }
 
 
 
@@ -190,10 +185,15 @@ public class AutoTele extends OpMode {
             runningActions.add(new SequentialAction(
                     mechanism.worm.autoMove(1420),
                     mechanism.worm.waitUntilDone(),
-                    new InstantAction(() -> mechanism.setChosenAngle(180)),
-                    mechanism.slide.autoMove(2368)
+                    mechanism.slide.autoMove(2380),
+                    mechanism.slide.waitUntilDone(),
+                    new InstantAction(() -> mechanism.setChosenAngle(200))
             ));
         }
+
+
+        if(gp1.dpad_right()) sweeper.setPosition(0);
+        if(gp1.dpad_left()) sweeper.setPosition(0.85);
 
 
         if(gp1.a()) {
@@ -224,15 +224,11 @@ public class AutoTele extends OpMode {
                     mechanism.worm.autoMove(1420),
                     follow(basketPath),
                     mechanism.worm.waitUntilDone(),
-                    new InstantAction(() -> mechanism.setChosenAngle(180)),
-                    mechanism.slide.autoMove(2368)
+                    mechanism.slide.autoMove(2380),
+                    mechanism.slide.waitUntilDone(),
+                    new InstantAction(() -> mechanism.setChosenAngle(200))
             ));
         }
-
-        if(gp1.left_bumper()) {
-            returnToSub = true;
-        }
-
         if (gp1.right_bumper()) {
             Pose curPose = follower.getPose();
             subPose = curPose;
@@ -252,25 +248,34 @@ public class AutoTele extends OpMode {
                     mechanism.worm.autoMove(1420),
                     follow(basketPath),
                     mechanism.worm.waitUntilDone(),
-                    new InstantAction(() -> mechanism.setChosenAngle(180)),
-                    mechanism.slide.autoMove(2368)
-            ));
+                    mechanism.slide.autoMove(2380),
+                    mechanism.slide.waitUntilDone(),
+                    new InstantAction(() -> mechanism.setChosenAngle(200))
+                ));
         }
 
 
+        if(gp2.dpad_down()) {
+            EeshMechanism.ROHAN_WORM_POS -= 10;
+            mechanism.worm.runToPos(EeshMechanism.ROHAN_WORM_POS);
+        }
+        if(gp2.dpad_up()) {
+            EeshMechanism.ROHAN_WORM_POS += 10;
+            mechanism.worm.runToPos(EeshMechanism.ROHAN_WORM_POS);
+        }
+
         if(gp1.dpad_down()) {
-            if(!returnToSub) {
-                runningActions.add(new SequentialAction(
-                        mechanism.drop(),
-                        new SleepAction(0.25),
+            runningActions.add(new SequentialAction(
+                        mechanism.setAngleAction(15),
+                        new SleepAction(0.2),
                         mechanism.slide.liftBottom(),
                         mechanism.slide.waitUntilDone(),
-                        mechanism.setAngleAction(15),
                         mechanism.startIntake(),
-                        mechanism.worm.autoMove(-1030)
+                        mechanism.worm.autoMove(EeshMechanism.ROHAN_WORM_POS)
                 ));
             }
-            else {
+
+        if(gp1.left_bumper()){
                 Pose curPose = follower.getPose();
                 PathChain subPath = follower.pathBuilder().addPath(
                                 new BezierCurve(
@@ -282,25 +287,42 @@ public class AutoTele extends OpMode {
                         .setLinearHeadingInterpolation(curPose.getHeading(), subPose.getHeading())
                         .build();
                 runningActions.add(new SequentialAction(
-                        mechanism.drop(),
-                        new SleepAction(0.25),
+                        mechanism.setAngleAction(15),
+                        new SleepAction(0.2),
                         mechanism.slide.liftBottom(),
                         mechanism.slide.waitUntilDone(),
-                        mechanism.setAngleAction(15),
                         mechanism.startIntake(),
-                        mechanism.worm.autoMove(-1030),
+                        mechanism.worm.autoMove(EeshMechanism.ROHAN_WORM_POS),
                         follow(subPath))
                 );
-                returnToSub = false;
             }
+
+
+        if(gp2.y()) {
+            runningActions.add(new SequentialAction(
+                    mechanism.worm.autoMove(EeshMechanism.ROHAN_WORM_POS),
+                    mechanism.slide.autoMove(EeshMechanism.ROHAN_SLIDE_POS)
+            ));
         }
 
-        if(gp2.dpad_left() || gp1.dpad_left()) {
+
+
+
+        if(gp2.left_bumper())
+        {
+            runningActions.add(new SequentialAction(
+                    mechanism.drop(),
+                    new SleepAction(2),
+                    mechanism.startIntake()
+            ));
+        }
+        
+
+        if(gp2.ps || gp1.ps) {
             runningActions = new ArrayList<>();
-            //mechanism.worm.runToPos(mechanism.worm.worm.getCurrentPosition());
-            //mechanism.slide.runToPos(mechanism.slide.slide.getCurrentPosition());
             mechanism.setWorm(0);
             mechanism.slide.setPower(0);
+            follower.breakFollowing();
         }
 
         TelemetryPacket packet = new TelemetryPacket();
@@ -340,11 +362,6 @@ public class AutoTele extends OpMode {
             mechanism.slide.setPow2();
         }
 
-        if(mechanism.wormCurrent <= 1450 && mechanism.wormCurrent >= 0)
-        {
-            //mechanism.setWrist(EeshMechanism.WRISTHOVER);
-        }
-
 
         if(Math.abs(gamepad2.left_stick_y)>0.25) {
             telemetry.addData("Joystick State", 1);
@@ -374,16 +391,8 @@ public class AutoTele extends OpMode {
         if(Math.abs(gamepad2.left_trigger) > 0.1)       mechanism.setWrist(mechanism.getWristPos() - inc);
         if(gp2.right_bumper())                          mechanism.intake.setPower(1);
         if(gp2.x())                                  mechanism.worm.runToPos((int) mechanism.wormPickup);
+        if(gp2.b())                                     mechanism.setChosenAngle(0);
 
-        if(gp2.left_bumper())
-        {
-            mechanism.intake.setPower(-1);
-        }
-
-        if(gamepad2.dpad_up)
-        {
-            mechanism.setWrist(0.8522);
-        }
 
         if(mechanism.wormCurrent < 0 && !flippedSafety1)
         {

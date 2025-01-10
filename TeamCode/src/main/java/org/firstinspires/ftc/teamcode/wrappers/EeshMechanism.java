@@ -36,7 +36,7 @@ public class EeshMechanism {
     public Servo wristL, wristR;
 
     public CRServo intake;
-    public static double WRIST_FLAT = 0.421, DEGREE_TO_POS = -261.39;
+    public static double WRIST_FLAT = 0.5461, DEGREE_TO_POS = -276.9230769231;
     public static double WRIST_UP = 90, WRIST_OUT = 0, WRIST_DOWN = -90, WRIST_SCORE = 180, MATCH_SLIDE = 270;
     public static double SLIDE_TICKS_HEIGHT = 460;
     public static double WORM_START = 1462;
