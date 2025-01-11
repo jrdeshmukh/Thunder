@@ -14,6 +14,7 @@ public class ResetWorm extends OpMode {
     private TouchSensor limitSwitch;
     double pow = 0.6;
     DcMotor frontLeft, frontRight, backRight;
+    double lastPow = 0;
 
 
 
@@ -27,22 +28,22 @@ public class ResetWorm extends OpMode {
         frontLeft = hardwareMap.dcMotor.get("leftFront");
         frontRight = hardwareMap.dcMotor.get("leftRear");
         backRight = hardwareMap.dcMotor.get("rightRear");
+        mechanism.setChosenAngle(180);
     }
 
     @Override
     public void loop() {
         mechanism.update();
         if(Math.abs(gamepad2.left_stick_y)>0.25) {
-            mechanism.setWorm(-gamepad2.left_stick_y * pow);
-        }
-        if(gamepad2.dpad_up)
-        {
-            mechanism.setWorm(0.2);
+            mechanism.worm.worm.setPower(-gamepad2.left_stick_y * pow);
+            mechanism.worm.copycat.setPower(-gamepad2.left_stick_y * pow);
+            lastPow = -gamepad2.left_stick_y * pow;
         }
 
 
 
-        if(limitSwitch.isPressed())
+
+        if(limitSwitch.isPressed() && lastPow>0)
         {
             pow = 0;
             frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

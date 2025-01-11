@@ -11,9 +11,6 @@ import com.acmerobotics.roadrunner.SleepAction;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.BezierPoint;
-import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
@@ -26,11 +23,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.autos.FiveYlw;
 import org.firstinspires.ftc.teamcode.wrappers.BBG;
 import org.firstinspires.ftc.teamcode.wrappers.EeshMechanism;
 import org.firstinspires.ftc.teamcode.wrappers.Worm;
@@ -43,7 +37,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @TeleOp
-public class AutoTele extends OpMode {
+public class JayAutoTele extends OpMode {
     private EeshMechanism mechanism;
     double inc = 0.015;
     double pow = 1;
@@ -229,7 +223,7 @@ public class AutoTele extends OpMode {
                     new InstantAction(() -> mechanism.setChosenAngle(220))
             ));
         }
-        if (gp1.right_bumper()) {
+        if (gp1.left_bumper()) {
             Pose curPose = follower.getPose();
             subPose = curPose;
             basketPath = follower.pathBuilder().addPath(
@@ -275,7 +269,7 @@ public class AutoTele extends OpMode {
                 ));
             }
 
-        if(gp1.left_bumper()){
+        if(gp1.right_bumper()){
                 Pose curPose = follower.getPose();
                 PathChain subPath = follower.pathBuilder().addPath(
                                 new BezierCurve(
