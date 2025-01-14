@@ -127,7 +127,7 @@ public class JayAutoTele extends OpMode {
         }
         Worm.overrideLimit = false;
         mechanism = new EeshMechanism(hardwareMap);
-        mechanism.setWrist(EeshMechanism.WRISTHOVER);
+        //mechanism.setWrist(EeshMechanism.WRISTHOVER);
         //colorRangeSensor = hardwareMap.get(ColorRangeSensor.class, "crs");
         //leds = hardwareMap.get(RevBlinkinLedDriver.class, "leds");
 

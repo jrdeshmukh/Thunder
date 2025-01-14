@@ -27,7 +27,7 @@ public class Slide {
     public static  int APPROACH_HANG = 1520;
     public static  int SCORE_SPECIMEN = 870;
     public static double curPow = 0;
-    public static  int MAX_FLAT_POS = 1130; //1722 ticks = 37 inches
+    public static  int MAX_FLAT_POS = 1090; //1722 ticks = 37 inches
     public static  int MAX_UP_POS = 3200; //highest it can physically go
     public static int fullExtension = 1722;
     public double lastPower = 15, tol = 0.01;

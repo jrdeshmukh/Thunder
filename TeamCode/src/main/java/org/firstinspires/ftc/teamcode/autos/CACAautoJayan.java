@@ -110,7 +110,7 @@ public class CACAautoJayan extends LinearOpMode {
         m = new EeshMechanism(hardwareMap);
         final Pose dropPoseNew = new Pose(29.0915, 132.4722, 0);
         final Pose startPose = new Pose(8, 110.9, Math.toRadians(-90));
-        final Pose dropFirstTwoPose = new Pose(12.5, 114.4);
+        final Pose dropFirstTwoPose = new Pose(12.9, 113.5);
         final Pose dropLastThree = new Pose(30.882, 118.6709);
         Constants.setConstants(FConstants.class, LConstants.class);
 
@@ -154,24 +154,24 @@ public class CACAautoJayan extends LinearOpMode {
                 new BezierLine(
                         new Point(dropFirstTwoPose),
                         //new Point(11.5427, 117.4),
-                        new Point(15, 117.5)//subtrat 0.5
+                        new Point(15, 117.6)//subtrat 0.5
                 )
         );
         pickup10.setLinearHeadingInterpolation(Math.toRadians(-67.3), Math.toRadians(0));
 
         Path pickup1 = new Path(
                 new BezierLine(
-                        new Point(15, 117.5),//subtrat 0.5
+                        new Point(15, 117.6),//subtrat 0.5
                         //new Point(11.5427, 117.4),
-                        new Point(23.5, 118.9)//subtrat 0.5
+                        new Point(20.5, 118.85)//subtrat 0.5
                 )
         );
         pickup1.setConstantHeadingInterpolation(Math.toRadians(0));
 
         Path pickup12 = new Path(
                 new BezierLine(
-                        new Point(23.5, 118.9),//subtrat 0.5
-                        new Point(30, 118.9)//subtrat 0.5
+                        new Point(20.5, 118.85),//subtrat 0.5
+                        new Point(30, 118.85)//subtrat 0.5
 
                 )
         );
@@ -180,8 +180,8 @@ public class CACAautoJayan extends LinearOpMode {
 
         Path score1 = new Path(
                 new BezierLine(
-                        new Point(30, 118.9),//subtrat 0.5
-                        new Point(new Pose(24.35, 119.2))
+                        new Point(30, 118.85),//subtrat 0.5
+                        new Point(new Pose(24.5, 119.2))
 
                 )
         );
@@ -214,7 +214,7 @@ public class CACAautoJayan extends LinearOpMode {
         Path score2 = new Path(
                 new BezierLine(
                         new Point(25.5, 128.3),//subtrat 1
-                        new Point(new Pose(23.75, 122.7))
+                        new Point(new Pose(23.75, 123))
                 )
         );
         score2.setLinearHeadingInterpolation(0, 5.5078);
@@ -222,7 +222,7 @@ public class CACAautoJayan extends LinearOpMode {
 
         Path pickup3 = new Path(
                 new BezierLine(
-                        new Point(new Pose(23.75, 122.7)),
+                        new Point(new Pose(23.75, 123)),
                         new Point(21.2, 126)
                 )
         );
@@ -248,7 +248,7 @@ public class CACAautoJayan extends LinearOpMode {
         Path score3 = new Path(
                 new BezierLine(
                         new Point(30, 128.3),
-                        new Point(25.1, 122)
+                        new Point(25.1, 122.3)
                 )
         );
         score3.setLinearHeadingInterpolation(0.469, 5.5078);
@@ -261,27 +261,28 @@ public class CACAautoJayan extends LinearOpMode {
 
         Path pickupTeammate =  new Path(
                 new BezierLine(
-                        new Point(25.25, 120),
-                        new Point(15.2, 118.7)
+                        new Point(25.1, 122.2),
+                        new Point(15.8, 120)
                 )
         );
         pickupTeammate.setLinearHeadingInterpolation(5.5078, Math.toRadians(-90));
 
         Path pickupTeammate2 = new Path(
                 new BezierLine(
-                        new Point(15.2, 118.7),
-                        new Point(13, 115.7)
+                        new Point(15.8, 120),
+                        new Point(13.1, 116.1)
                 )
         );
         pickupTeammate2.setConstantHeadingInterpolation(Math.toRadians(-90));
 
+        //8, 110.9
         Path scoreTeammate = new Path(
                 new BezierLine(
-                        new Point(13, 115.7),
-                        new Point(15.5, 114.5)
+                        new Point(13.5, 116.1),
+                        new Point(  19.0, 118.7)
                 )
         );
-        scoreTeammate.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-60));
+        scoreTeammate.setLinearHeadingInterpolation(Math.toRadians(-90), 5.4878);
 
 
 
@@ -360,7 +361,7 @@ public class CACAautoJayan extends LinearOpMode {
                                 m.slide.waitUntilDone(),
                                 //new SleepAction(0.24),
                                 m.drop(),
-                                new SleepAction(0.25),
+                                new SleepAction(0.55),
                                 new InstantAction(() -> m.setChosenAngle(wristpickup)),
                                 m.slide.liftBottom(),
                                 m.slide.waitUntilDone(),
@@ -383,7 +384,7 @@ public class CACAautoJayan extends LinearOpMode {
                                 m.slide.waitUntilDone(),
                                 //new SleepAction(0.24),
                                 m.drop(),
-                                new SleepAction(0.25),
+                                new SleepAction(0.45),
                                 new InstantAction(() -> m.setChosenAngle(wristpickup)),
                                 //new SleepAction(0.25),
                                 m.slide.liftBottom(),
@@ -410,7 +411,7 @@ public class CACAautoJayan extends LinearOpMode {
                                 m.slide.waitUntilDone(),
                                 //new SleepAction(0.24),
                                 m.drop(),
-                                new SleepAction(0.25),
+                                new SleepAction(0.45),
                                 new InstantAction(() -> m.setChosenAngle(wristpickup)),
                                 //new SleepAction(0.25),
                                 m.slide.liftBottom(),
@@ -434,7 +435,7 @@ public class CACAautoJayan extends LinearOpMode {
                                 m.slide.waitUntilDone(),
                                 //new SleepAction(0.24),
                                 m.drop(),
-                                new SleepAction(0.25),
+                                new SleepAction(0.45),
                                 new InstantAction(() -> m.setChosenAngle(wristpickup)),
                                 //new SleepAction(0.25),
                                 m.slide.liftBottom(),
@@ -447,6 +448,7 @@ public class CACAautoJayan extends LinearOpMode {
 
                                 m.worm.waitUntilDone(),
                                 followUntilDone(pickupTeammate),
+                                new SleepAction(0.3),
                                 followUntilDone(pickupTeammate2),
                                 //new SleepAction(0.5),
                                 m.worm.autoMove(1295),
@@ -456,8 +458,10 @@ public class CACAautoJayan extends LinearOpMode {
                                 m.slide.autoMove(2368),
                                 new InstantAction(() -> m.setChosenAngle(150)),
                                 m.slide.waitUntilDone(),
-                                new SleepAction(0.24),
-                                m.drop()
+                                new SleepAction(0.35),
+                                m.drop(),
+                                new SleepAction(0.3),
+                                new InstantAction(() -> stop())
                         )
                 ));
 
